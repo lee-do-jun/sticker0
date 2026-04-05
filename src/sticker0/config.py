@@ -15,7 +15,7 @@ class ThemeConfig:
 
 @dataclass
 class BorderConfig:
-    type: BorderType = BorderType.ROUNDED
+    border_type: BorderType = BorderType.ROUNDED
 
 
 @dataclass
@@ -45,16 +45,28 @@ class AppConfig:
         with open(path, "rb") as f:
             data = tomllib.load(f)
         config = cls()
-        if t := data.get("theme"):
-            if v := t.get("default_color"):
-                config.theme.default_color = StickerColor(v)
-        if b := data.get("border"):
-            if v := b.get("type"):
-                config.border.type = BorderType(v)
-        if d := data.get("defaults"):
+        if (t := data.get("theme")) is not None:
+            if (v := t.get("default_color")) is not None:
+                try:
+                    config.theme.default_color = StickerColor(v)
+                except ValueError:
+                    raise ValueError(
+                        f"Invalid default_color '{v}'. "
+                        f"Valid values: {[e.value for e in StickerColor]}"
+                    )
+        if (b := data.get("border")) is not None:
+            if (v := b.get("type")) is not None:
+                try:
+                    config.border.border_type = BorderType(v)
+                except ValueError:
+                    raise ValueError(
+                        f"Invalid border type '{v}'. "
+                        f"Valid values: {[e.value for e in BorderType]}"
+                    )
+        if (d := data.get("defaults")) is not None:
             config.defaults.width = d.get("width", 30)
             config.defaults.height = d.get("height", 10)
-        if kb := data.get("keybindings"):
+        if (kb := data.get("keybindings")) is not None:
             config.keybindings.new = kb.get("new", "n")
             config.keybindings.delete = kb.get("delete", "d")
             config.keybindings.quit = kb.get("quit", "q")
