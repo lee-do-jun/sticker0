@@ -73,3 +73,36 @@ async def test_sticker_resize_from_corner(tmp_storage):
         await pilot.pause()
         assert widget.sticker.size.width == 40
         assert widget.sticker.size.height == 13
+
+
+@pytest.mark.asyncio
+async def test_double_click_enters_edit_mode(tmp_storage):
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from textual.widgets import TextArea
+    s = Sticker(title="Edit me", content="original")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        # 더블클릭 시뮬레이션: 빠른 연속 클릭
+        await pilot.click(widget, offset=(5, 2))
+        await pilot.click(widget, offset=(5, 2))
+        await pilot.pause(0.1)
+        assert len(app.query(TextArea)) >= 1
+
+
+@pytest.mark.asyncio
+async def test_escape_exits_edit_mode(tmp_storage):
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from textual.widgets import TextArea
+    s = Sticker(title="Edit me", content="original")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        await pilot.click(widget, offset=(5, 2))
+        await pilot.click(widget, offset=(5, 2))
+        await pilot.pause(0.1)
+        await pilot.press("escape")
+        await pilot.pause(0.1)
+        assert len(app.query(TextArea)) == 0

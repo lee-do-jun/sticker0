@@ -44,6 +44,7 @@ class StickerWidget(Widget):
 
     MIN_WIDTH = 20
     MIN_HEIGHT = 5
+    DOUBLE_CLICK_INTERVAL = 0.4
 
     can_focus = True
 
@@ -134,3 +135,61 @@ class StickerWidget(Widget):
             self.sticker.title or "📌 메모"
         )
         self.query_one(".sticker-content", Static).update(self.sticker.content)
+
+    def on_click(self, event: Click) -> None:
+        now = time.monotonic()
+        if now - self._last_click < self.DOUBLE_CLICK_INTERVAL:
+            self._enter_edit_mode()
+            event.stop()
+        self._last_click = now
+
+    def _enter_edit_mode(self) -> None:
+        if self._editing:
+            return
+        self._editing = True
+        try:
+            content_widget = self.query_one(".sticker-content", Static)
+            content_widget.remove()
+        except Exception:
+            pass
+        editor = TextArea(
+            self.sticker.content,
+            classes="sticker-content",
+            id="sticker-editor",
+        )
+        self.mount(editor)
+        editor.focus()
+
+    def _exit_edit_mode(self) -> None:
+        if not self._editing:
+            return
+        self._editing = False
+        try:
+            editor = self.query_one("#sticker-editor", TextArea)
+            self.sticker.content = editor.text
+            editor.remove()
+        except Exception:
+            pass
+        self.mount(Static(self.sticker.content, classes="sticker-content"))
+        try:
+            board = self.app.query_one("StickerBoard")
+            board.save_sticker(self.sticker)
+        except Exception:
+            pass
+
+    def on_key(self, event) -> None:
+        if self._editing:
+            if event.key == "escape":
+                self._exit_edit_mode()
+                event.stop()
+        else:
+            if event.key in ("d", "delete"):
+                try:
+                    board = self.app.query_one("StickerBoard")
+                    board.delete_sticker(self.sticker.id)
+                except Exception:
+                    pass
+                event.stop()
+            elif event.key == "enter":
+                self._enter_edit_mode()
+                event.stop()
