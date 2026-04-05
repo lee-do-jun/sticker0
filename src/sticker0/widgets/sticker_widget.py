@@ -152,10 +152,11 @@ class StickerWidget(Widget):
             content_widget.remove()
         except Exception:
             pass
+        editor_id = f"sticker-editor-{self.sticker.id}"
         editor = TextArea(
             self.sticker.content,
             classes="sticker-content",
-            id="sticker-editor",
+            id=editor_id,
         )
         self.mount(editor)
         editor.focus()
@@ -164,8 +165,9 @@ class StickerWidget(Widget):
         if not self._editing:
             return
         self._editing = False
+        editor_id = f"sticker-editor-{self.sticker.id}"
         try:
-            editor = self.query_one("#sticker-editor", TextArea)
+            editor = self.query_one(f"#{editor_id}", TextArea)
             self.sticker.content = editor.text
             editor.remove()
         except Exception:
