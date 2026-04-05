@@ -73,6 +73,38 @@ class StickerWidget(Widget):
         yield Static(title, classes="sticker-title")
         yield Static(self.sticker.content, classes="sticker-content")
 
+    def on_mouse_down(self, event: MouseDown) -> None:
+        event.stop()
+        self._drag_start = (event.screen_x, event.screen_y)
+        self._drag_origin = (self.sticker.position.x, self.sticker.position.y)
+        self.capture_mouse()
+
+    def on_mouse_move(self, event: MouseMove) -> None:
+        if self._drag_start is None:
+            return
+        event.stop()
+        dx = event.screen_x - self._drag_start[0]
+        dy = event.screen_y - self._drag_start[1]
+        new_x = max(0, self._drag_origin[0] + dx)
+        new_y = max(0, self._drag_origin[1] + dy)
+        self.sticker.position.x = new_x
+        self.sticker.position.y = new_y
+        self.styles.offset = (new_x, new_y)
+
+    def on_mouse_up(self, event: MouseUp) -> None:
+        if self._drag_start is not None:
+            dx = event.screen_x - self._drag_start[0]
+            dy = event.screen_y - self._drag_start[1]
+            new_x = max(0, self._drag_origin[0] + dx)
+            new_y = max(0, self._drag_origin[1] + dy)
+            self.sticker.position.x = new_x
+            self.sticker.position.y = new_y
+            self.styles.offset = (new_x, new_y)
+            self._drag_start = None
+            self.release_mouse()
+            board = self.app.query_one("StickerBoard")
+            board.save_sticker(self.sticker)
+
     def refresh_display(self) -> None:
         """스티커 데이터 변경 후 화면 갱신."""
         self._apply_sticker_styles()
