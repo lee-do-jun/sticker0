@@ -42,6 +42,9 @@ class StickerWidget(Widget):
     }
     """
 
+    MIN_WIDTH = 20
+    MIN_HEIGHT = 5
+
     can_focus = True
 
     def __init__(self, sticker: Sticker, **kwargs) -> None:
@@ -73,10 +76,21 @@ class StickerWidget(Widget):
         yield Static(title, classes="sticker-title")
         yield Static(self.sticker.content, classes="sticker-content")
 
+    def _is_resize_handle(self, x: int, y: int) -> bool:
+        """우하단 모서리(2x2 영역) 클릭 여부."""
+        w = self.sticker.size.width
+        h = self.sticker.size.height
+        return x >= w - 2 and y >= h - 2
+
     def on_mouse_down(self, event: MouseDown) -> None:
         event.stop()
         self._drag_start = (event.screen_x, event.screen_y)
-        self._drag_origin = (self.sticker.position.x, self.sticker.position.y)
+        if self._is_resize_handle(event.x, event.y):
+            self._resizing = True
+            self._drag_origin = (self.sticker.size.width, self.sticker.size.height)
+        else:
+            self._resizing = False
+            self._drag_origin = (self.sticker.position.x, self.sticker.position.y)
         self.capture_mouse()
 
     def on_mouse_move(self, event: MouseMove) -> None:
@@ -85,21 +99,37 @@ class StickerWidget(Widget):
         event.stop()
         dx = event.screen_x - self._drag_start[0]
         dy = event.screen_y - self._drag_start[1]
-        new_x = max(0, self._drag_origin[0] + dx)
-        new_y = max(0, self._drag_origin[1] + dy)
-        self.sticker.position.x = new_x
-        self.sticker.position.y = new_y
-        self.styles.offset = (new_x, new_y)
-
-    def on_mouse_up(self, event: MouseUp) -> None:
-        if self._drag_start is not None:
-            dx = event.screen_x - self._drag_start[0]
-            dy = event.screen_y - self._drag_start[1]
+        if self._resizing:
+            new_w = max(self.MIN_WIDTH, self._drag_origin[0] + dx)
+            new_h = max(self.MIN_HEIGHT, self._drag_origin[1] + dy)
+            self.sticker.size.width = new_w
+            self.sticker.size.height = new_h
+            self.styles.width = new_w
+            self.styles.height = new_h
+        else:
             new_x = max(0, self._drag_origin[0] + dx)
             new_y = max(0, self._drag_origin[1] + dy)
             self.sticker.position.x = new_x
             self.sticker.position.y = new_y
             self.styles.offset = (new_x, new_y)
+
+    def on_mouse_up(self, event: MouseUp) -> None:
+        if self._drag_start is not None:
+            dx = event.screen_x - self._drag_start[0]
+            dy = event.screen_y - self._drag_start[1]
+            if self._resizing:
+                new_w = max(self.MIN_WIDTH, self._drag_origin[0] + dx)
+                new_h = max(self.MIN_HEIGHT, self._drag_origin[1] + dy)
+                self.sticker.size.width = new_w
+                self.sticker.size.height = new_h
+                self.styles.width = new_w
+                self.styles.height = new_h
+            else:
+                new_x = max(0, self._drag_origin[0] + dx)
+                new_y = max(0, self._drag_origin[1] + dy)
+                self.sticker.position.x = new_x
+                self.sticker.position.y = new_y
+                self.styles.offset = (new_x, new_y)
             self._drag_start = None
             self.release_mouse()
             board = self.app.query_one("StickerBoard")

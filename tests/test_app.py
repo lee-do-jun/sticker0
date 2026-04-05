@@ -49,3 +49,27 @@ async def test_sticker_drag_moves_position(tmp_storage):
         await pilot.pause()
         assert widget.sticker.position.x == 15
         assert widget.sticker.position.y == 10
+
+
+@pytest.mark.asyncio
+async def test_sticker_resize_from_corner(tmp_storage):
+    from sticker0.widgets.sticker_widget import StickerWidget
+    s = Sticker(title="Resize me")
+    s.size.width = 30
+    s.size.height = 10
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        # 우하단 모서리(리사이즈 핸들)에서 드래그: 10x3 증가
+        corner_offset = (s.size.width - 1, s.size.height - 1)
+        await pilot.mouse_down(widget, offset=corner_offset)
+        # mouse_up을 corner보다 +10, +3 위치에서
+        corner_screen = (
+            widget.region.x + corner_offset[0],
+            widget.region.y + corner_offset[1],
+        )
+        await pilot.mouse_up(offset=(corner_screen[0] + 10, corner_screen[1] + 3))
+        await pilot.pause()
+        assert widget.sticker.size.width == 40
+        assert widget.sticker.size.height == 13
