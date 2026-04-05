@@ -52,6 +52,8 @@ class StickerWidget(Widget):
         self._resizing: bool = False
         self._last_click: float = 0.0
         self._editing: bool = False
+
+    def on_mount(self) -> None:
         self._apply_sticker_styles()
 
     def _apply_sticker_styles(self) -> None:

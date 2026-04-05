@@ -3,6 +3,7 @@ from __future__ import annotations
 from textual.widget import Widget
 from textual.app import ComposeResult
 from sticker0.config import AppConfig
+from sticker0.sticker import Sticker
 from sticker0.storage import StickerStorage
 from sticker0.widgets.sticker_widget import StickerWidget
 
@@ -35,6 +36,11 @@ class StickerBoard(Widget):
 
     def save_sticker(self, sticker) -> None:
         self.storage.save(sticker)
+
+    def add_new_sticker(self) -> None:
+        sticker = Sticker()
+        self.storage.save(sticker)
+        self.mount(StickerWidget(sticker))
 
     def delete_sticker(self, sticker_id: str) -> None:
         self.storage.delete(sticker_id)
