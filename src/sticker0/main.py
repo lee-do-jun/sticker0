@@ -1,8 +1,12 @@
 # src/sticker0/main.py
+from __future__ import annotations
 
 
 def main() -> None:
-    print("sticker0 v0.1.0")
+    from sticker0.app import Sticker0App
+
+    app = Sticker0App()
+    app.run()
 
 
 if __name__ == "__main__":
