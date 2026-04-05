@@ -48,3 +48,11 @@ class StickerBoard(Widget):
             if widget.sticker.id == sticker_id:
                 widget.remove()
                 break
+
+    def on_context_menu_menu_action(self, message) -> None:
+        if message.action == "delete":
+            self.delete_sticker(message.sticker_id)
+        elif message.action == "edit":
+            for widget in self.query(StickerWidget):
+                if widget.sticker.id == message.sticker_id:
+                    widget._enter_edit_mode()

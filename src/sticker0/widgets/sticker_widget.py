@@ -119,6 +119,12 @@ class StickerWidget(Widget):
         self._apply_drag(dx, dy)
 
     def on_mouse_up(self, event: MouseUp) -> None:
+        if event.button == 3:
+            event.stop()
+            self._drag_start = None
+            self.release_mouse()
+            self._show_context_menu(event.screen_x, event.screen_y)
+            return
         if self._drag_start is not None:
             dx = event.screen_x - self._drag_start[0]
             dy = event.screen_y - self._drag_start[1]
@@ -127,6 +133,23 @@ class StickerWidget(Widget):
             self.release_mouse()
             board = self.app.query_one("StickerBoard")
             board.save_sticker(self.sticker)
+
+    def _show_context_menu(self, screen_x: int, screen_y: int) -> None:
+        """우클릭 메뉴를 화면 좌표에 표시."""
+        from sticker0.widgets.context_menu import ContextMenu
+        # 기존 메뉴 닫기
+        for menu in self.app.query(ContextMenu):
+            menu.remove()
+        # board 기준 좌표로 변환
+        board = self.app.query_one("StickerBoard")
+        local_x = screen_x - board.region.x
+        local_y = screen_y - board.region.y
+        menu = ContextMenu(
+            sticker_id=self.sticker.id,
+            x=local_x,
+            y=local_y,
+        )
+        board.mount(menu)
 
     def refresh_display(self) -> None:
         """스티커 데이터 변경 후 화면 갱신."""

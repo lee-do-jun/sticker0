@@ -106,3 +106,35 @@ async def test_escape_exits_edit_mode(tmp_storage):
         await pilot.press("escape")
         await pilot.pause(0.1)
         assert len(app.query(TextArea)) == 0
+
+
+@pytest.mark.asyncio
+async def test_right_click_shows_context_menu(tmp_storage):
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from sticker0.widgets.context_menu import ContextMenu
+    s = Sticker(title="Menu test")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        assert len(app.query(ContextMenu)) == 1
+
+
+@pytest.mark.asyncio
+async def test_context_menu_delete_removes_sticker(tmp_storage):
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from sticker0.widgets.context_menu import ContextMenu
+    s = Sticker(title="Delete via menu")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        menu = app.query_one(ContextMenu)
+        await pilot.click(menu.query_one("#menu-delete"))
+        await pilot.pause(0.1)
+        assert len(app.query(StickerWidget)) == 0
+        assert tmp_storage.load_all() == []
