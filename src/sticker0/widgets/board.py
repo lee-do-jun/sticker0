@@ -56,3 +56,5 @@ class StickerBoard(Widget):
             for widget in self.query(StickerWidget):
                 if widget.sticker.id == message.sticker_id:
                     widget._enter_edit_mode()
+        elif message.action == "color":
+            pass  # TODO: Task 12에서 색상 변경 구현 예정
