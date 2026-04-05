@@ -152,6 +152,35 @@ async def test_press_n_creates_sticker(tmp_storage):
 
 
 @pytest.mark.asyncio
+async def test_color_change_via_context_menu(tmp_storage):
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from sticker0.widgets.color_picker import ColorPicker
+    from sticker0.sticker import StickerColor
+    s = Sticker(title="Color test", color=StickerColor.YELLOW)
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        # 우클릭으로 컨텍스트 메뉴 열기
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        from sticker0.widgets.context_menu import ContextMenu
+        menu = app.query_one(ContextMenu)
+        # 색상 변경 버튼 클릭
+        await pilot.click(menu.query_one("#menu-color"))
+        await pilot.pause(0.1)
+        # ColorPicker가 표시되어야 함
+        assert len(app.query(ColorPicker)) == 1
+        # 파란색 선택
+        picker = app.query_one(ColorPicker)
+        await pilot.click(picker.query_one("#color-blue"))
+        await pilot.pause(0.1)
+        # 스티커 색상이 변경되어야 함
+        loaded = tmp_storage.load(s.id)
+        assert loaded.color == StickerColor.BLUE
+
+
+@pytest.mark.asyncio
 async def test_focused_sticker_delete_with_d_key(tmp_storage):
     from sticker0.widgets.sticker_widget import StickerWidget
     s = Sticker(title="Press d")

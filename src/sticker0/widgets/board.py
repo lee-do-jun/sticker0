@@ -74,4 +74,24 @@ class StickerBoard(Widget):
                 if widget.sticker.id == message.sticker_id:
                     widget._enter_edit_mode()
         elif message.action == "color":
-            pass  # TODO: Task 12에서 색상 변경 구현 예정
+            from sticker0.widgets.color_picker import ColorPicker
+            # 기존 ColorPicker 닫기
+            for picker in self.query(ColorPicker):
+                picker.remove()
+            picker = ColorPicker(
+                sticker_id=message.sticker_id,
+                x=22,
+                y=3,
+            )
+            self.mount(picker)
+
+    def on_color_picker_color_selected(self, message) -> None:
+        from sticker0.widgets.color_picker import ColorPicker
+        from sticker0.widgets.sticker_widget import StickerWidget
+        for widget in self.query(StickerWidget):
+            if widget.sticker.id == message.sticker_id:
+                widget.sticker.color = message.color
+                widget._apply_sticker_styles()
+                widget.refresh()
+                self.storage.save(widget.sticker)
+                break
