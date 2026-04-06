@@ -44,15 +44,15 @@ class BoardTheme:
 
 @dataclass
 class BorderConfig:
-    top: str = "double"
-    sides: str = "single"
+    top: str = "heavy"
+    sides: str = "heavy"
 
 
 @dataclass
 class DefaultsConfig:
     width: int = 30
     height: int = 10
-    preset: str = "Snow"
+    preset: str = "Graphite"
 
 
 @dataclass
@@ -90,7 +90,7 @@ class AppConfig:
         if (d := data.get("defaults")) is not None:
             config.defaults.width = d.get("width", 30)
             config.defaults.height = d.get("height", 10)
-            config.defaults.preset = d.get("preset", "Snow")
+            config.defaults.preset = d.get("preset", "Graphite")
         # Keybindings
         if (kb := data.get("keybindings")) is not None:
             config.keybindings.new = kb.get("new", "n")
