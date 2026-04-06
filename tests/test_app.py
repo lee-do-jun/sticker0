@@ -275,3 +275,47 @@ async def test_focused_sticker_delete_with_d_key(tmp_storage):
         await pilot.pause(0.1)
         assert len(app.query(StickerWidget)) == 0
         assert tmp_storage.load_all() == []
+
+
+@pytest.mark.asyncio
+async def test_empty_board_right_click_shows_board_menu(tmp_storage):
+    """빈 보드 영역 우클릭 → BoardMenu 표시."""
+    from sticker0.widgets.board_menu import BoardMenu
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        assert len(app.query(BoardMenu)) == 1
+
+
+@pytest.mark.asyncio
+async def test_board_menu_create_adds_sticker(tmp_storage):
+    """BoardMenu Create → 새 스티커 생성."""
+    from sticker0.widgets.board_menu import BoardMenu
+    from sticker0.widgets.sticker_widget import StickerWidget
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        await pilot.click(menu.query_one("#board-create"))
+        await pilot.pause(0.1)
+        assert len(app.query(StickerWidget)) == 1
+        assert len(tmp_storage.load_all()) == 1
+
+
+@pytest.mark.asyncio
+async def test_board_menu_quit_exits_app(tmp_storage):
+    """BoardMenu Quit → 앱 종료."""
+    from sticker0.widgets.board_menu import BoardMenu
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        await pilot.click(menu.query_one("#board-quit"))
+        await pilot.pause(0.1)
+    assert not app.is_running

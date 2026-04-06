@@ -2,6 +2,7 @@
 from __future__ import annotations
 from textual.widget import Widget
 from textual.app import ComposeResult
+from textual.events import MouseUp
 from sticker0.config import AppConfig
 from sticker0.sticker import Sticker, StickerSize
 from sticker0.storage import StickerStorage
@@ -37,7 +38,7 @@ class StickerBoard(Widget):
     def save_sticker(self, sticker) -> None:
         self.storage.save(sticker)
 
-    def add_new_sticker(self) -> None:
+    def add_new_sticker(self, x: int | None = None, y: int | None = None) -> None:
         cfg = self.config
         sticker = Sticker(
             color=cfg.theme.default_color,
@@ -47,15 +48,19 @@ class StickerBoard(Widget):
                 height=cfg.defaults.height,
             ),
         )
-        # 화면 중앙 배치
-        try:
-            screen = self.screen
-            center_x = max(0, (screen.size.width - sticker.size.width) // 2)
-            center_y = max(0, (screen.size.height - sticker.size.height) // 2)
-            sticker.position.x = center_x
-            sticker.position.y = center_y
-        except Exception:
-            pass
+        if x is not None and y is not None:
+            sticker.position.x = x
+            sticker.position.y = y
+        else:
+            # 화면 중앙 배치
+            try:
+                screen = self.screen
+                center_x = max(0, (screen.size.width - sticker.size.width) // 2)
+                center_y = max(0, (screen.size.height - sticker.size.height) // 2)
+                sticker.position.x = center_x
+                sticker.position.y = center_y
+            except Exception:
+                pass
         self.storage.save(sticker)
         self.mount(StickerWidget(sticker))
 
@@ -84,6 +89,25 @@ class StickerBoard(Widget):
                 y=3,
             )
             self.mount(picker)
+
+    def on_mouse_up(self, event: MouseUp) -> None:
+        """빈 영역 우클릭 감지 (StickerWidget이 stop하지 않은 경우)."""
+        if event.button == 3:
+            from sticker0.widgets.board_menu import BoardMenu
+            from sticker0.widgets.context_menu import ContextMenu
+            for menu in self.query(BoardMenu):
+                menu.remove()
+            for menu in self.query(ContextMenu):
+                menu.remove()
+            menu = BoardMenu(x=event.x, y=event.y)
+            self.mount(menu)
+
+    def on_board_menu_menu_action(self, message) -> None:
+        if message.action == "create":
+            self.add_new_sticker(x=message.x, y=message.y)
+        elif message.action == "quit":
+            self.app.exit()
+        # "theme" is reserved for future use
 
     def on_color_picker_color_selected(self, message) -> None:
         from sticker0.widgets.color_picker import ColorPicker
