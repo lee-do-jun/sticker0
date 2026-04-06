@@ -419,12 +419,3 @@ class StickerWidget(Widget):
             minimized=self.sticker.minimized,
         )
         board.mount(menu)
-
-    def _enter_edit_mode(self) -> None:
-        if not self.sticker.minimized:
-            self._get_editor().focus()
-
-    def on_key(self, event) -> None:
-        if event.key == "enter":
-            self._enter_edit_mode()
-            event.stop()

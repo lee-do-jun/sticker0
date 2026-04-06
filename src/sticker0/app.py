@@ -20,10 +20,3 @@ class Sticker0App(App):
 
     def compose(self) -> ComposeResult:
         yield StickerBoard(storage=self.storage, config=self.config)
-
-    def on_mount(self) -> None:
-        kb = self.config.keybindings
-        self.bind(kb.new, "new_sticker", description="새 스티커")
-
-    def action_new_sticker(self) -> None:
-        self.query_one(StickerBoard).add_new_sticker()
