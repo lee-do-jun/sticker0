@@ -6,7 +6,10 @@ from textual.widgets import Button
 from textual.message import Message
 
 from sticker0.widgets.menu_button import PrimaryOnlyButton
-from sticker0.widgets.popup_geometry import apply_clamp_popup_to_parent
+from sticker0.widgets.popup_geometry import (
+    apply_clamp_popup_to_parent,
+    apply_popup_board_theme,
+)
 
 
 class BoardMenu(Widget):
@@ -17,8 +20,7 @@ class BoardMenu(Widget):
         position: absolute;
         width: 24;
         height: auto;
-        background: $surface;
-        color: $text;
+        background: transparent;
         layer: menu;
     }
     BoardMenu Button {
@@ -27,10 +29,9 @@ class BoardMenu(Widget):
         min-height: 1;
         border: none;
         background: transparent;
-        color: $text;
     }
     BoardMenu Button:hover {
-        background: $accent 20%;
+        background: $foreground 10%;
     }
     """
 
@@ -46,16 +47,19 @@ class BoardMenu(Widget):
         x: int,
         y: int,
         indicator: str = "white",
+        board_background: str = "transparent",
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self._menu_x = x
         self._menu_y = y
         self._indicator = indicator
+        self._board_background = board_background
 
     def on_mount(self) -> None:
         self.styles.offset = (self._menu_x, self._menu_y)
         self.styles.border = ("round", self._indicator)
+        apply_popup_board_theme(self, self._board_background, self._indicator)
         self.call_after_refresh(self._clamp_to_parent)
 
     def _clamp_to_parent(self) -> None:

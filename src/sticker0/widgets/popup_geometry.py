@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from textual.widget import Widget
+from textual.widgets import Button
 
 
 def clamp_offset_to_parent(
@@ -34,3 +35,14 @@ def apply_clamp_popup_to_parent(widget: Widget) -> None:
     nx, ny = clamp_offset_to_parent(ox, oy, ow, oh, pw, ph)
     if (nx, ny) != (ox, oy):
         widget.styles.offset = (nx, ny)
+
+
+def apply_popup_board_theme(
+    widget: Widget, board_background: str, indicator: str
+) -> None:
+    """보드 테마와 맞춤: 패널 배경 = board_background, 라벨·버튼 글자 = indicator."""
+    widget.styles.background = board_background
+    widget.styles.color = indicator
+    for btn in widget.query(Button):
+        btn.styles.color = indicator
+        btn.styles.background = "transparent"

@@ -6,7 +6,10 @@ from textual.widgets import Button
 from textual.message import Message
 from sticker0.presets import BoardThemePreset, BOARD_PRESETS
 from sticker0.widgets.menu_button import PrimaryOnlyButton
-from sticker0.widgets.popup_geometry import apply_clamp_popup_to_parent
+from sticker0.widgets.popup_geometry import (
+    apply_clamp_popup_to_parent,
+    apply_popup_board_theme,
+)
 
 
 class ThemePicker(Widget):
@@ -17,8 +20,7 @@ class ThemePicker(Widget):
         position: absolute;
         width: 22;
         height: auto;
-        background: $surface;
-        color: $text;
+        background: transparent;
         layer: menu;
     }
     ThemePicker Button {
@@ -27,10 +29,9 @@ class ThemePicker(Widget):
         min-height: 1;
         border: none;
         background: transparent;
-        color: $text;
     }
     ThemePicker Button:hover {
-        background: $accent 20%;
+        background: $foreground 10%;
     }
     """
 
@@ -45,6 +46,7 @@ class ThemePicker(Widget):
         x: int,
         y: int,
         indicator: str = "white",
+        board_background: str = "transparent",
         custom_presets: dict[str, BoardThemePreset] | None = None,
         **kwargs,
     ) -> None:
@@ -52,6 +54,7 @@ class ThemePicker(Widget):
         self._x = x
         self._y = y
         self._indicator = indicator
+        self._board_background = board_background
         self._all_presets: dict[str, BoardThemePreset] = dict(BOARD_PRESETS)
         if custom_presets:
             self._all_presets.update(custom_presets)
@@ -59,6 +62,7 @@ class ThemePicker(Widget):
     def on_mount(self) -> None:
         self.styles.offset = (self._x, self._y)
         self.styles.border = ("round", self._indicator)
+        apply_popup_board_theme(self, self._board_background, self._indicator)
         self.call_after_refresh(self._clamp_to_parent)
 
     def _clamp_to_parent(self) -> None:

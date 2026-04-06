@@ -6,7 +6,10 @@ from textual.widgets import Button
 from textual.message import Message
 
 from sticker0.widgets.menu_button import PrimaryOnlyButton
-from sticker0.widgets.popup_geometry import apply_clamp_popup_to_parent
+from sticker0.widgets.popup_geometry import (
+    apply_clamp_popup_to_parent,
+    apply_popup_board_theme,
+)
 
 
 class ContextMenu(Widget):
@@ -17,8 +20,7 @@ class ContextMenu(Widget):
         position: absolute;
         width: 20;
         height: auto;
-        background: $surface;
-        color: $text;
+        background: transparent;
         layer: menu;
     }
     ContextMenu Button {
@@ -27,10 +29,9 @@ class ContextMenu(Widget):
         min-height: 1;
         border: none;
         background: transparent;
-        color: $text;
     }
     ContextMenu Button:hover {
-        background: $accent 20%;
+        background: $foreground 10%;
     }
     """
 
@@ -50,6 +51,7 @@ class ContextMenu(Widget):
         x: int,
         y: int,
         indicator: str = "white",
+        board_background: str = "transparent",
         minimized: bool = False,
         **kwargs,
     ) -> None:
@@ -58,11 +60,13 @@ class ContextMenu(Widget):
         self._menu_x = x
         self._menu_y = y
         self._indicator = indicator
+        self._board_background = board_background
         self._minimized = minimized
 
     def on_mount(self) -> None:
         self.styles.offset = (self._menu_x, self._menu_y)
         self.styles.border = ("round", self._indicator)
+        apply_popup_board_theme(self, self._board_background, self._indicator)
         self.call_after_refresh(self._clamp_to_parent)
 
     def _clamp_to_parent(self) -> None:

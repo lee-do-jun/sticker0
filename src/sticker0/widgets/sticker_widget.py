@@ -305,11 +305,13 @@ class StickerWidget(Widget):
         local_x = screen_x - board.region.x
         local_y = screen_y - board.region.y
         indicator = getattr(board, "indicator", "white")
+        board_bg = getattr(board, "board_bg", "transparent")
         menu = ContextMenu(
             sticker_id=self.sticker.id,
             x=local_x,
             y=local_y,
             indicator=indicator,
+            board_background=board_bg,
             minimized=self.sticker.minimized,
         )
         board.mount(menu)

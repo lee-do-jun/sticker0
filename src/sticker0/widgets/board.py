@@ -134,7 +134,10 @@ class StickerBoard(Widget):
             self.close_all_menus()
             from sticker0.widgets.board_menu import BoardMenu
             menu = BoardMenu(
-                x=event.x, y=event.y, indicator=self.indicator,
+                x=event.x,
+                y=event.y,
+                indicator=self.indicator,
+                board_background=self.board_bg,
             )
             self.mount(menu)
 
@@ -168,6 +171,7 @@ class StickerBoard(Widget):
                 x=message.x,
                 y=message.y,
                 indicator=self.indicator,
+                board_background=self.board_bg,
                 custom_presets=self.config.sticker_presets,
             )
             self.mount(picker)
@@ -190,6 +194,7 @@ class StickerBoard(Widget):
                 x=message.x,
                 y=message.y,
                 indicator=self.indicator,
+                board_background=self.board_bg,
                 custom_presets=self.config.board_presets,
             )
             self.mount(picker)
