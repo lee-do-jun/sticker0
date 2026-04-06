@@ -30,6 +30,26 @@ _DRAG_RESIZE_CORNER_BR = "resize_corner_br"
 DOUBLE_CLICK_INTERVAL = 0.4
 
 
+class StickerTextArea(TextArea):
+    """TextArea가 마우스를 먼저 받는 영역에서도 테두리 리사이즈가 동작하도록 부모에 위임한다."""
+
+    async def _on_mouse_down(self, event: MouseDown) -> None:
+        parent = self.parent
+        if (
+            event.button == 1
+            and isinstance(parent, StickerWidget)
+            and not parent.sticker.minimized
+        ):
+            local_x = event.screen_x - parent.region.x
+            local_y = event.screen_y - parent.region.y
+            mode = parent._classify_border(local_x, local_y)
+            if mode is not None:
+                parent._handle_primary_down(event, local_x, local_y)
+                event.stop()
+                return
+        await super()._on_mouse_down(event)
+
+
 class StickerWidget(Widget):
     DEFAULT_CSS = """
     StickerWidget {
@@ -38,12 +58,12 @@ class StickerWidget(Widget):
         min-height: 3;
         background: transparent;
     }
-    StickerWidget TextArea {
+    StickerWidget StickerTextArea {
         height: 1fr;
         border: none;
-        padding: 0 2 0 1;
+        padding: 0 0 0 1;
     }
-    StickerWidget TextArea:focus {
+    StickerWidget StickerTextArea:focus {
         border: none;
     }
     """
@@ -127,7 +147,7 @@ class StickerWidget(Widget):
 
     def compose(self) -> ComposeResult:
         editor_id = f"sticker-editor-{self.sticker.id}"
-        yield TextArea(self.sticker.content, id=editor_id)
+        yield StickerTextArea(self.sticker.content, id=editor_id)
 
     def _get_editor(self) -> TextArea:
         return self.query_one(f"#sticker-editor-{self.sticker.id}", TextArea)
@@ -178,7 +198,7 @@ class StickerWidget(Widget):
             if children and children[-1] is not self:
                 parent.move_child(self, after=children[-1])
 
-    def on_mouse_down(self, event: MouseDown) -> None:
+    def _handle_primary_down(self, event: MouseDown, local_x: int, local_y: int) -> None:
         if event.button == 1:
             try:
                 board = self.app.query_one("StickerBoard")
@@ -186,7 +206,7 @@ class StickerWidget(Widget):
             except NoMatches:
                 pass
         self._move_to_front()
-        mode = self._classify_border(event.x, event.y)
+        mode = self._classify_border(local_x, local_y)
 
         # 상단 테두리 더블클릭 → 최소화/복원 토글
         if mode == _DRAG_MOVE:
@@ -223,6 +243,9 @@ class StickerWidget(Widget):
         ):
             self._drag_origin = (self.sticker.size.width, self.sticker.size.height)
         self.capture_mouse()
+
+    def on_mouse_down(self, event: MouseDown) -> None:
+        self._handle_primary_down(event, event.x, event.y)
 
     def on_mouse_move(self, event: MouseMove) -> None:
         if self._drag_start is None:
