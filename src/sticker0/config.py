@@ -70,8 +70,6 @@ class DefaultsConfig:
 @dataclass
 class KeybindingsConfig:
     new: str = "n"
-    delete: str = "d"
-    quit: str = "q"
 
 
 @dataclass
@@ -111,8 +109,6 @@ class AppConfig:
         # Keybindings
         if (kb := data.get("keybindings")) is not None:
             config.keybindings.new = kb.get("new", "n")
-            config.keybindings.delete = kb.get("delete", "d")
-            config.keybindings.quit = kb.get("quit", "q")
         # Custom presets
         presets_data = data.get("presets", {})
         if (sp := presets_data.get("sticker")) is not None:

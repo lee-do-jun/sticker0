@@ -42,7 +42,7 @@
 
 **우클릭**: `on_mouse_up(button==3)` → `board.close_all_menus()` + ContextMenu mount (`minimized` 전달)
 
-**키**: `d`/`delete` → 삭제, `enter` → `_get_editor().focus()`
+**키**: `enter` → `_get_editor().focus()` (삭제는 우클릭 메뉴)
 
 **주의**: `_move_to_front()` = `parent.move_child(self, after=children[-1])`
 
@@ -59,7 +59,7 @@
 **`close_all_menus()`**: ContextMenu, BoardMenu, PresetPicker, ThemePicker 전부 remove
 
 **마우스**:
-- **좌클릭 다운** (`on_mouse_down`, button 1): 포인터가 팝업이나 스티커 위가 아니면 `app.set_focus(None)` — 빈 보드 클릭 시 TextArea 포커스 해제로 앱 단축키가 동작
+- **좌클릭 다운** (`on_mouse_down`, button 1): 포인터가 팝업이나 스티커 위가 아니면 `app.set_focus(None)` — 빈 보드 클릭 시 TextArea 포커스 해제로 `n` 단축키가 동작 (종료·삭제는 각 우클릭 메뉴)
 - **좌클릭 업**: 팝업 밖이면 `close_all_menus()`
 - **우클릭**: 팝업 위면 `event.stop()`; 아니면 메뉴 닫고 `BoardMenu` mount
 

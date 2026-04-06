@@ -19,7 +19,7 @@ A terminal sticky notes TUI app built with Python + [Textual](https://textual.te
 - **Minimize / restore** — double-click the top border or use the context menu
 - **Screen clamping** — stickers stay within the terminal
 - **Auto-save** — each sticker stored as JSON under `~/.local/share/sticker0/`
-- **Config** — `~/.stkrc` for board theme, sticker default colors, border style, size defaults, and keybindings
+- **Config** — `~/.stkrc` for board theme, sticker default colors, border style, size defaults, and optional `[keybindings]` (`new` only)
 
 ---
 
@@ -112,11 +112,11 @@ stk
 
 ## Keyboard shortcuts
 
-| Key            | Action                 |
-| -------------- | ---------------------- |
-| `n`            | New sticker            |
-| `d` / `Delete` | Delete focused sticker |
-| `q`            | Quit                   |
+| Key   | Action      |
+| ----- | ----------- |
+| `n`   | New sticker |
+
+Delete stickers from the sticker context menu (**Delete**). Quit from the board right-click menu (**Quit**).
 
 ---
 
@@ -145,8 +145,6 @@ height = 10
 
 [keybindings]
 new = "n"
-delete = "d"
-quit = "q"
 
 # Custom sticker preset
 [presets.sticker.Fire]

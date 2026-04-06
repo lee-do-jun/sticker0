@@ -1,5 +1,7 @@
 # sticker0 Update 1 Implementation Plan
 
+> **Documentation note:** 키보드 `q` 종료·`d`/Delete 삭제는 제거되었습니다. 종료/삭제는 우클릭 메뉴를 사용합니다. 아래 스니펫의 `bind(kb.quit, …)`, `on_key`의 `d`/`delete`, `q` 키 체크리스트는 과거 초안일 수 있습니다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** v0.1.0의 UX를 개선하여 v0.2.0으로 업그레이드 한다 — 헤더/푸터 제거, 전체화면 보드, 단일 클릭 즉시 편집, 투명 배경, 테두리 역할 분리, z-index, 빈 영역 우클릭 메뉴, ContextMenu 버그 수정.

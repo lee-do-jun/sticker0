@@ -69,8 +69,8 @@ indicator = "#839496"
 class Sticker0App(App):
     # Screen CSS: layers: base stickers menu
     # self.config = AppConfig.load()
-    # 키바인딩: n=새 스티커, q=종료
-    # d/Delete: StickerWidget.on_key에서 처리
+    # 키바인딩: n=새 스티커 (종료·삭제는 각 메뉴)
+    # Enter: StickerWidget.on_key → 편집 포커스
 ```
 
 config 접근: 어디서든 `self.app.config`

@@ -425,13 +425,6 @@ class StickerWidget(Widget):
             self._get_editor().focus()
 
     def on_key(self, event) -> None:
-        if event.key in ("d", "delete"):
-            try:
-                board = self.app.query_one("StickerBoard")
-                board.delete_sticker(self.sticker.id)
-            except NoMatches:
-                pass
-            event.stop()
-        elif event.key == "enter":
+        if event.key == "enter":
             self._enter_edit_mode()
             event.stop()

@@ -1,5 +1,7 @@
 # sticker0 Update 2 Implementation Plan
 
+> **Documentation note:** 키보드 `q` 종료·`d`/Delete 삭제는 제거되었습니다. 종료/삭제는 우클릭 메뉴를 사용합니다. 아래 스니펫의 `keybindings.quit`/`delete`, `action_quit`, `on_key`의 `d`/`delete` 등은 과거 초안일 수 있습니다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** v0.2.0의 색상 시스템을 3색 프리셋 기반으로 전면 교체하고, 보드 테마, 최소화, 중앙점 제약, 테두리 커스터마이징을 추가하여 v0.3.0으로 업그레이드한다.

@@ -284,7 +284,7 @@ def _clamp_position(self) -> None:
 - `~/.stkrc` TOML 설정
 - 스티커 드래그 이동/리사이즈 (테두리 역할 분리)
 - 우클릭 컨텍스트 메뉴
-- `n` 키 새 스티커 생성, `d`/Delete 키 삭제
+- `n` 키 새 스티커 생성; 삭제·앱 종료는 각 우클릭 메뉴 (키보드 `q`/`d`/Delete로 종료·삭제 없음)
 - z-index (클릭 시 최상단 이동)
 - 빈 영역 우클릭 → BoardMenu
 

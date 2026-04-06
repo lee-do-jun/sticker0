@@ -21,7 +21,6 @@ def test_defaults_when_no_file(tmp_path):
     assert config.defaults.height == 10
     assert config.defaults.preset == "Graphite"
     assert config.keybindings.new == "n"
-    assert config.keybindings.quit == "q"
 
 
 def test_load_board_theme_from_toml(tmp_path):

@@ -133,7 +133,7 @@ class StickerBoard(Widget):
         return False
 
     def on_mouse_down(self, event: MouseDown) -> None:
-        """빈 보드 클릭 시 TextArea 포커스 해제 → 앱 단축키(n/q/d)가 동작하도록."""
+        """빈 보드 클릭 시 TextArea 포커스 해제 → 앱 단축키(n)가 동작하도록."""
         if event.button != 1:
             return
         if self._pointer_is_on_popup_layer(event):

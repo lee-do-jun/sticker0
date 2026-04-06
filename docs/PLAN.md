@@ -1,5 +1,7 @@
 # sticker0 Implementation Plan
 
+> **Documentation note:** 키보드 `q` 종료·`d`/Delete 삭제는 제거되었습니다. 종료는 보드 메뉴 **Quit**, 삭제는 스티커 메뉴 **Delete**를 사용합니다. 본 문서의 `keybindings.quit`/`delete`, `action_quit`, 관련 키 시나리오는 과거 초안일 수 있습니다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 터미널에서 동작하는 데스크톱 스티커 메모 앱 `sticker0`를 Python + Textual TUI로 구현한다.

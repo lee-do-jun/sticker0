@@ -256,22 +256,6 @@ async def test_app_has_no_header_or_footer(tmp_storage):
 
 
 @pytest.mark.asyncio
-async def test_focused_sticker_delete_with_d_key(tmp_storage):
-    from sticker0.widgets.sticker_widget import StickerWidget
-    s = Sticker(title="Press d")
-    tmp_storage.save(s)
-    app = Sticker0App(storage=tmp_storage)
-    async with app.run_test(size=(120, 40)) as pilot:
-        widget = app.query_one(StickerWidget)
-        widget.focus()
-        await pilot.pause(0.1)
-        await pilot.press("d")
-        await pilot.pause(0.1)
-        assert len(app.query(StickerWidget)) == 0
-        assert tmp_storage.load_all() == []
-
-
-@pytest.mark.asyncio
 async def test_empty_board_right_click_shows_board_menu(tmp_storage):
     from sticker0.widgets.board_menu import BoardMenu
     app = Sticker0App(storage=tmp_storage)
