@@ -30,9 +30,6 @@ class BoardMenu(Widget):
         border: none;
         background: transparent;
     }
-    BoardMenu Button:hover {
-        background: $foreground 10%;
-    }
     """
 
     class MenuAction(Message):
@@ -66,9 +63,24 @@ class BoardMenu(Widget):
         apply_clamp_popup_to_parent(self)
 
     def compose(self) -> ComposeResult:
-        yield PrimaryOnlyButton("Create", id="board-create")
-        yield PrimaryOnlyButton("Theme", id="board-theme")
-        yield PrimaryOnlyButton("Quit", id="board-quit")
+        yield PrimaryOnlyButton(
+            "Create",
+            id="board-create",
+            menu_indicator=self._indicator,
+            menu_panel_bg=self._board_background,
+        )
+        yield PrimaryOnlyButton(
+            "Theme",
+            id="board-theme",
+            menu_indicator=self._indicator,
+            menu_panel_bg=self._board_background,
+        )
+        yield PrimaryOnlyButton(
+            "Quit",
+            id="board-quit",
+            menu_indicator=self._indicator,
+            menu_panel_bg=self._board_background,
+        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

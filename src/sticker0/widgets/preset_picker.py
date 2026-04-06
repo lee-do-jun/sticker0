@@ -31,9 +31,6 @@ class PresetPicker(Widget):
         border: none;
         background: transparent;
     }
-    PresetPicker Button:hover {
-        background: $foreground 10%;
-    }
     """
 
     class PresetSelected(Message):
@@ -73,7 +70,12 @@ class PresetPicker(Widget):
 
     def compose(self) -> ComposeResult:
         for name in self._all_presets:
-            yield PrimaryOnlyButton(name, id=f"preset-{name}")
+            yield PrimaryOnlyButton(
+                name,
+                id=f"preset-{name}",
+                menu_indicator=self._indicator,
+                menu_panel_bg=self._board_background,
+            )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

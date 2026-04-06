@@ -30,9 +30,6 @@ class ThemePicker(Widget):
         border: none;
         background: transparent;
     }
-    ThemePicker Button:hover {
-        background: $foreground 10%;
-    }
     """
 
     class ThemeSelected(Message):
@@ -73,7 +70,12 @@ class ThemePicker(Widget):
         for name in self._all_presets:
             safe_id = f"theme-{name.replace(' ', '-')}"
             self._id_to_name[safe_id] = name
-            yield PrimaryOnlyButton(name, id=safe_id)
+            yield PrimaryOnlyButton(
+                name,
+                id=safe_id,
+                menu_indicator=self._indicator,
+                menu_panel_bg=self._board_background,
+            )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

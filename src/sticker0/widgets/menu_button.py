@@ -9,9 +9,39 @@ from textual.widgets import Button
 class PrimaryOnlyButton(Button):
     """팝업 메뉴 전용. compact 기본값으로 입체 테두리(음영) 제거."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        *args,
+        menu_indicator: str | None = None,
+        menu_panel_bg: str | None = None,
+        **kwargs,
+    ) -> None:
         compact = kwargs.pop("compact", True)
         super().__init__(*args, compact=compact, **kwargs)
+        self._menu_indicator = menu_indicator
+        self._menu_panel_bg = menu_panel_bg
+
+    def _swap_hover_on(self) -> None:
+        if self._menu_indicator is None or self._menu_panel_bg is None:
+            return
+        self.styles.background = self._menu_indicator
+        self.styles.color = self._menu_panel_bg
+
+    def _swap_hover_off(self) -> None:
+        if self._menu_indicator is None or self._menu_panel_bg is None:
+            return
+        self.styles.background = "transparent"
+        self.styles.color = self._menu_indicator
+
+    def on_enter(self, event: events.Enter) -> None:
+        if event.node is not self:
+            return
+        self._swap_hover_on()
+
+    def on_leave(self, event: events.Leave) -> None:
+        if event.node is not self:
+            return
+        self._swap_hover_off()
 
     async def _on_click(self, event: events.Click) -> None:
         # Textual은 MRO에서 서브클래스·Button 양쪽 _on_click을 모두 호출한다.

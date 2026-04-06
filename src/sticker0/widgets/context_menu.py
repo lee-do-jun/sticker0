@@ -30,9 +30,6 @@ class ContextMenu(Widget):
         border: none;
         background: transparent;
     }
-    ContextMenu Button:hover {
-        background: $foreground 10%;
-    }
     """
 
     class MenuAction(Message):
@@ -73,12 +70,17 @@ class ContextMenu(Widget):
         apply_clamp_popup_to_parent(self)
 
     def compose(self) -> ComposeResult:
+        mi, mb = self._indicator, self._board_background
         if self._minimized:
-            yield PrimaryOnlyButton("Expand", id="menu-restore")
+            yield PrimaryOnlyButton(
+                "Expand", id="menu-restore", menu_indicator=mi, menu_panel_bg=mb
+            )
         else:
-            yield PrimaryOnlyButton("Minimize", id="menu-minimize")
-        yield PrimaryOnlyButton("Color", id="menu-preset")
-        yield PrimaryOnlyButton("Delete", id="menu-delete")
+            yield PrimaryOnlyButton(
+                "Minimize", id="menu-minimize", menu_indicator=mi, menu_panel_bg=mb
+            )
+        yield PrimaryOnlyButton("Color", id="menu-preset", menu_indicator=mi, menu_panel_bg=mb)
+        yield PrimaryOnlyButton("Delete", id="menu-delete", menu_indicator=mi, menu_panel_bg=mb)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
