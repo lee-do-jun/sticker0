@@ -5,6 +5,10 @@ from textual.app import ComposeResult
 from textual.widgets import Button
 from textual.message import Message
 from sticker0.presets import BoardThemePreset, BOARD_PRESETS
+from sticker0.widgets.picker_labels import (
+    board_theme_picker_label,
+    resolve_board_theme_picker_idle,
+)
 from sticker0.widgets.menu_button import PrimaryOnlyButton
 from sticker0.widgets.popup_geometry import (
     apply_clamp_popup_to_parent,
@@ -59,7 +63,12 @@ class ThemePicker(Widget):
     def on_mount(self) -> None:
         self.styles.offset = (self._x, self._y)
         self.styles.border = ("round", self._indicator)
-        apply_popup_board_theme(self, self._board_background, self._indicator)
+        apply_popup_board_theme(
+            self,
+            self._board_background,
+            self._indicator,
+            style_buttons=False,
+        )
         self.call_after_refresh(self._clamp_to_parent)
 
     def _clamp_to_parent(self) -> None:
@@ -67,14 +76,19 @@ class ThemePicker(Widget):
 
     def compose(self) -> ComposeResult:
         self._id_to_name: dict[str, str] = {}
-        for name in self._all_presets:
+        for name, preset in self._all_presets.items():
             safe_id = f"theme-{name.replace(' ', '-')}"
             self._id_to_name[safe_id] = name
+            idle_bg, idle_fg = resolve_board_theme_picker_idle(
+                preset, self._board_background, self._indicator
+            )
             yield PrimaryOnlyButton(
-                name,
+                board_theme_picker_label(preset),
                 id=safe_id,
                 menu_indicator=self._indicator,
                 menu_panel_bg=self._board_background,
+                menu_idle_bg=idle_bg,
+                menu_idle_color=idle_fg,
             )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

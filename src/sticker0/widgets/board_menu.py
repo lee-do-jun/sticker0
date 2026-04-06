@@ -76,7 +76,7 @@ class BoardMenu(Widget):
             menu_panel_bg=self._board_background,
         )
         yield PrimaryOnlyButton(
-            "Theme",
+            "Change Theme",
             id="board-theme",
             menu_indicator=self._indicator,
             menu_panel_bg=self._board_background,

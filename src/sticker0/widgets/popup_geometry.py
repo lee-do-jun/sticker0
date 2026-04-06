@@ -38,11 +38,20 @@ def apply_clamp_popup_to_parent(widget: Widget) -> None:
 
 
 def apply_popup_board_theme(
-    widget: Widget, board_background: str, indicator: str
+    widget: Widget,
+    board_background: str,
+    indicator: str,
+    *,
+    style_buttons: bool = True,
 ) -> None:
-    """보드 테마와 맞춤: 패널 배경 = board_background, 라벨·버튼 글자 = indicator."""
+    """보드 테마와 맞춤: 패널 배경 = board_background, 라벨·버튼 글자 = indicator.
+
+    ``style_buttons=False``이면 자식 버튼은 건드리지 않는다(프리셋/테마 피커 행별 배경).
+    """
     widget.styles.background = board_background
     widget.styles.color = indicator
+    if not style_buttons:
+        return
     for btn in widget.query(Button):
         btn.styles.color = indicator
         btn.styles.background = "transparent"

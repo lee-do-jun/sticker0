@@ -14,12 +14,20 @@ class PrimaryOnlyButton(Button):
         *args,
         menu_indicator: str | None = None,
         menu_panel_bg: str | None = None,
+        menu_idle_bg: str | None = None,
+        menu_idle_color: str | None = None,
         **kwargs,
     ) -> None:
         compact = kwargs.pop("compact", True)
         super().__init__(*args, compact=compact, **kwargs)
         self._menu_indicator = menu_indicator
         self._menu_panel_bg = menu_panel_bg
+        self._menu_idle_bg = menu_idle_bg
+        self._menu_idle_color = menu_idle_color
+
+    def on_mount(self) -> None:
+        if self._menu_indicator is not None and self._menu_panel_bg is not None:
+            self._swap_hover_off()
 
     def _swap_hover_on(self) -> None:
         if self._menu_indicator is None or self._menu_panel_bg is None:
@@ -30,8 +38,18 @@ class PrimaryOnlyButton(Button):
     def _swap_hover_off(self) -> None:
         if self._menu_indicator is None or self._menu_panel_bg is None:
             return
-        self.styles.background = "transparent"
-        self.styles.color = self._menu_indicator
+        bg = (
+            self._menu_idle_bg
+            if self._menu_idle_bg is not None
+            else "transparent"
+        )
+        color = (
+            self._menu_idle_color
+            if self._menu_idle_color is not None
+            else self._menu_indicator
+        )
+        self.styles.background = bg
+        self.styles.color = color
 
     def on_enter(self, event: events.Enter) -> None:
         if event.node is not self:
