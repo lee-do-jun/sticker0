@@ -1,6 +1,6 @@
 [project]
 name = "sticker0"
-version = "0.4.0"
+version = "0.5.0"
 description = "Terminal sticky notes"
 readme = "README.md"
 requires-python = ">=3.11"
