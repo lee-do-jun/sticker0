@@ -12,14 +12,6 @@ from textual.events import MouseDown, MouseMove, MouseUp
 from textual.css.query import NoMatches
 from sticker0.sticker import Sticker
 
-# 테두리 스타일 이름 → Textual border 스타일
-BORDER_STYLE_MAP: dict[str, str] = {
-    "single": "solid",
-    "double": "double",
-    "heavy": "heavy",
-    "simple": "ascii",
-}
-
 _DRAG_MOVE = "move"
 _DRAG_RESIZE_RIGHT = "resize_right"
 _DRAG_RESIZE_LEFT = "resize_left"
@@ -105,16 +97,6 @@ class StickerWidget(Widget):
         except NoMatches:
             return "white"
 
-    def _get_border_config(self) -> tuple[str, str]:
-        """config에서 border top/sides 스타일 조회. (top_textual, sides_textual) 반환."""
-        try:
-            config = self.app.config
-            top = BORDER_STYLE_MAP.get(config.border.top, "double")
-            sides = BORDER_STYLE_MAP.get(config.border.sides, "solid")
-            return (top, sides)
-        except AttributeError:
-            return ("double", "solid")
-
     def _apply_sticker_styles(self) -> None:
         colors = self.sticker.colors
         # Area color: transparent → 보드 배경 상속
@@ -128,10 +110,14 @@ class StickerWidget(Widget):
         self.styles.background = area_color
         self.styles.color = text_color
 
-        # Border style from config
-        top_style, sides_style = self._get_border_config()
-        self.styles.border = (sides_style, border_color)
-        self.styles.border_top = (top_style, border_color)
+        from sticker0.sticker import BORDER_STYLES, DEFAULT_BORDER_LINE
+
+        line = (
+            self.sticker.line
+            if self.sticker.line in BORDER_STYLES
+            else DEFAULT_BORDER_LINE
+        )
+        self.styles.border = (line, border_color)
 
         # Position and size
         self.styles.offset = (self.sticker.position.x, self.sticker.position.y)
