@@ -48,7 +48,13 @@ class StickerBoard(Container):
     def save_sticker(self, sticker: Sticker) -> None:
         self.storage.save(sticker)
 
-    def add_new_sticker(self, x: int | None = None, y: int | None = None) -> None:
+    def add_new_sticker(
+        self,
+        x: int | None = None,
+        y: int | None = None,
+        *,
+        content: str | None = None,
+    ) -> None:
         cfg = self.config
         bt = cfg.board_theme
         colors = StickerColors(
@@ -57,6 +63,7 @@ class StickerBoard(Container):
             area=bt.sticker_area,
         )
         sticker = Sticker(
+            content=content if content is not None else "",
             colors=colors,
             size=StickerSize(
                 width=cfg.defaults.width,
@@ -223,6 +230,11 @@ class StickerBoard(Container):
     def on_board_menu_menu_action(self, message) -> None:
         if message.action == "create":
             self.add_new_sticker(x=message.x, y=message.y)
+        elif message.action == "new_from_clipboard":
+            clip = read_os_clipboard_text()
+            if clip is None:
+                return
+            self.add_new_sticker(x=message.x, y=message.y, content=clip)
         elif message.action == "theme":
             from sticker0.widgets.theme_picker import ThemePicker
             self.close_all_menus()

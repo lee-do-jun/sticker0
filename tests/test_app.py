@@ -287,6 +287,47 @@ async def test_board_menu_create_adds_sticker(tmp_storage):
 
 
 @pytest.mark.asyncio
+async def test_board_menu_new_from_clipboard_adds_sticker_with_content(tmp_storage):
+    from unittest.mock import patch
+
+    from sticker0.widgets.board_menu import BoardMenu
+
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        with patch(
+            "sticker0.widgets.board.read_os_clipboard_text",
+            return_value="pasted note",
+        ):
+            await pilot.click(menu.query_one("#board-new-from-clipboard"))
+            await pilot.pause(0.1)
+    loaded = tmp_storage.load_all()
+    assert len(loaded) == 1
+    assert loaded[0].content == "pasted note"
+
+
+@pytest.mark.asyncio
+async def test_board_menu_new_from_clipboard_noop_when_clipboard_empty(tmp_storage):
+    from unittest.mock import patch
+
+    from sticker0.widgets.board_menu import BoardMenu
+
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        with patch("sticker0.widgets.board.read_os_clipboard_text", return_value=None):
+            await pilot.click(menu.query_one("#board-new-from-clipboard"))
+            await pilot.pause(0.1)
+    assert tmp_storage.load_all() == []
+
+
+@pytest.mark.asyncio
 async def test_board_menu_quit_exits_app(tmp_storage):
     from sticker0.widgets.board_menu import BoardMenu
     app = Sticker0App(storage=tmp_storage)

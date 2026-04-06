@@ -18,7 +18,7 @@ class BoardMenu(Widget):
     DEFAULT_CSS = """
     BoardMenu {
         position: absolute;
-        width: 24;
+        width: 28;
         height: auto;
         background: transparent;
         layer: menu;
@@ -64,8 +64,14 @@ class BoardMenu(Widget):
 
     def compose(self) -> ComposeResult:
         yield PrimaryOnlyButton(
-            "Create",
+            "New Sticker",
             id="board-create",
+            menu_indicator=self._indicator,
+            menu_panel_bg=self._board_background,
+        )
+        yield PrimaryOnlyButton(
+            "New from Clipboard",
+            id="board-new-from-clipboard",
             menu_indicator=self._indicator,
             menu_panel_bg=self._board_background,
         )
@@ -86,6 +92,7 @@ class BoardMenu(Widget):
         event.stop()
         action_map = {
             "board-create": "create",
+            "board-new-from-clipboard": "new_from_clipboard",
             "board-theme": "theme",
             "board-quit": "quit",
         }

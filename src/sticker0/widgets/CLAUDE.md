@@ -68,7 +68,7 @@
 | 핸들러 | 동작 |
 |--------|------|
 | `on_context_menu_menu_action` | copy / paste / delete / preset(피커 마운트) / minimize / restore |
-| `on_board_menu_menu_action` | create / theme(피커 마운트) / quit |
+| `on_board_menu_menu_action` | create / new_from_clipboard / theme(피커 마운트) / quit |
 | `on_preset_picker_preset_selected` | sticker.colors 교체 + 스타일 재적용 + save |
 | `on_theme_picker_theme_selected` | board_bg/indicator 갱신 + 전 스티커 재적용 + save_board_theme() |
 
@@ -96,7 +96,7 @@
 
 **클립보드**: `sticker0.system_clipboard` — OS는 `pyperclip`, Textual 버퍼·OSC52는 `write_clipboard_from_app`에서 `app.copy_to_clipboard`로 동기화.
 
-**BoardMenu action 값**: `"create"`, `"theme"`, `"quit"`
+**BoardMenu action 값**: `"create"`, `"new_from_clipboard"`, `"theme"`, `"quit"`
 
 **PresetPicker 버튼 id**: `f"preset-{name}"` (예: `#preset-Graphite`)
 
