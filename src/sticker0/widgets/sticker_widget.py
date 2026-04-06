@@ -4,6 +4,7 @@ from textual.widget import Widget
 from textual.widgets import TextArea
 from textual.app import ComposeResult
 from textual.events import MouseDown, MouseMove, MouseUp
+from textual.css.query import NoMatches
 from sticker0.sticker import Sticker, StickerColor, BorderType
 
 COLOR_MAP: dict[StickerColor, tuple[str, str]] = {
@@ -25,7 +26,8 @@ BORDER_MAP: dict[BorderType, str] = {
 }
 
 _DRAG_MOVE = "move"
-_DRAG_RESIZE_W = "resize_w"
+_DRAG_RESIZE_RIGHT = "resize_right"
+_DRAG_RESIZE_LEFT = "resize_left"
 _DRAG_RESIZE_H = "resize_h"
 
 
@@ -92,8 +94,10 @@ class StickerWidget(Widget):
         h = self.outer_size.height
         if y == 0:
             return _DRAG_MOVE
-        if x == 0 or x == w - 1:
-            return _DRAG_RESIZE_W
+        if x == 0:
+            return _DRAG_RESIZE_LEFT
+        if x == w - 1:
+            return _DRAG_RESIZE_RIGHT
         if y == h - 1:
             return _DRAG_RESIZE_H
         return None
@@ -116,7 +120,11 @@ class StickerWidget(Widget):
         self._drag_mode = mode
         if mode == _DRAG_MOVE:
             self._drag_origin = (self.sticker.position.x, self.sticker.position.y)
+        elif mode == _DRAG_RESIZE_LEFT:
+            # 좌측 가장자리 이동: position.x와 width 모두 origin 저장
+            self._drag_origin = (self.sticker.position.x, self.sticker.size.width)
         else:
+            # resize_right, resize_h: width 또는 height origin
             self._drag_origin = (self.sticker.size.width, self.sticker.size.height)
         self.capture_mouse()
 
@@ -135,9 +143,17 @@ class StickerWidget(Widget):
             self.sticker.position.x = new_x
             self.sticker.position.y = new_y
             self.styles.offset = (new_x, new_y)
-        elif self._drag_mode == _DRAG_RESIZE_W:
+        elif self._drag_mode == _DRAG_RESIZE_RIGHT:
             new_w = max(self.MIN_WIDTH, self._drag_origin[0] + dx)
             self.sticker.size.width = new_w
+            self.styles.width = new_w
+        elif self._drag_mode == _DRAG_RESIZE_LEFT:
+            # origin_x = position.x, origin_w = width (stored in tuple)
+            new_x = max(0, self._drag_origin[0] + dx)
+            new_w = max(self.MIN_WIDTH, self._drag_origin[1] - dx)
+            self.sticker.position.x = new_x
+            self.sticker.size.width = new_w
+            self.styles.offset = (new_x, self.sticker.position.y)
             self.styles.width = new_w
         elif self._drag_mode == _DRAG_RESIZE_H:
             new_h = max(self.MIN_HEIGHT, self._drag_origin[1] + dy)
@@ -165,7 +181,7 @@ class StickerWidget(Widget):
         try:
             board = self.app.query_one("StickerBoard")
             board.save_sticker(self.sticker)
-        except Exception:
+        except NoMatches:
             pass
 
     def _show_context_menu(self, screen_x: int, screen_y: int) -> None:
@@ -191,7 +207,7 @@ class StickerWidget(Widget):
             try:
                 board = self.app.query_one("StickerBoard")
                 board.delete_sticker(self.sticker.id)
-            except Exception:
+            except NoMatches:
                 pass
             event.stop()
         elif event.key == "enter":
