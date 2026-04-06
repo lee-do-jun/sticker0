@@ -322,6 +322,31 @@ async def test_board_theme_change(tmp_storage, tmp_config):
 
 
 @pytest.mark.asyncio
+async def test_sticker_inherit_uses_board_indicator(tmp_storage, tmp_config):
+    """border/text가 inherit이면 스티커 위젯 색은 보드 indicator로 해석된다."""
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from textual.color import Color
+
+    tmp_config.board_theme.indicator = "#aabbcc"
+    s = Sticker(
+        colors=StickerColors(
+            border="inherit",
+            text="inherit",
+            area="transparent",
+        ),
+    )
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage, config=tmp_config)
+    async with app.run_test(size=(120, 40)):
+        widget = app.query_one(StickerWidget)
+        board = app.query_one("StickerBoard")
+        expected = Color.parse("#aabbcc")
+        assert board.indicator == "#aabbcc"
+        assert widget.styles.color == expected
+        assert widget.styles.border_top[1] == expected
+
+
+@pytest.mark.asyncio
 async def test_minimize_via_context_menu(tmp_storage):
     """우클릭 → 최소화 → 높이 3줄 + 최소화 상태."""
     from sticker0.widgets.sticker_widget import StickerWidget

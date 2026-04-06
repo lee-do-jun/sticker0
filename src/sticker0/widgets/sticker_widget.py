@@ -92,6 +92,14 @@ class StickerWidget(Widget):
         except NoMatches:
             return "transparent"
 
+    def _get_indicator(self) -> str:
+        """보드 테마의 indicator 색상 조회 (border/text inherit 시 사용)."""
+        try:
+            board = self.app.query_one("StickerBoard")
+            return getattr(board, "indicator", "white")
+        except NoMatches:
+            return "white"
+
     def _get_border_config(self) -> tuple[str, str]:
         """config에서 border top/sides 스타일 조회. (top_textual, sides_textual) 반환."""
         try:
@@ -108,13 +116,17 @@ class StickerWidget(Widget):
         area_color = colors.area
         if area_color == "transparent":
             area_color = self._get_board_background()
+        border_color = (
+            self._get_indicator() if colors.border == "inherit" else colors.border
+        )
+        text_color = self._get_indicator() if colors.text == "inherit" else colors.text
         self.styles.background = area_color
-        self.styles.color = colors.text
+        self.styles.color = text_color
 
         # Border style from config
         top_style, sides_style = self._get_border_config()
-        self.styles.border = (sides_style, colors.border)
-        self.styles.border_top = (top_style, colors.border)
+        self.styles.border = (sides_style, border_color)
+        self.styles.border_top = (top_style, border_color)
 
         # Position and size
         self.styles.offset = (self.sticker.position.x, self.sticker.position.y)
@@ -135,16 +147,16 @@ class StickerWidget(Widget):
                 # 일반 글자와 동일한 (text + area) 조합은 커서 칸이 안 보임. 역전시켜 텍스트 색이 블록에 쓰이게 함.
                 # Rich Style은 "transparent"를 해석하지 못하므로 "default"로 치환한다.
                 cursor_fg = area_color if area_color != "transparent" else "default"
-                cursor_style = Style(color=cursor_fg, bgcolor=colors.text)
+                cursor_style = Style(color=cursor_fg, bgcolor=text_color)
                 editor.register_theme(
                     replace(base_theme, name=theme_name, cursor_style=cursor_style)
                 )
                 editor.theme = theme_name
             editor.styles.background = area_color
-            editor.styles.color = colors.text
+            editor.styles.color = text_color
             # 스크롤 트랙은 항상 스티커 배경. 썸은 본문색, 호버 시 변화 없음, 드래그(grab) 시만 #888.
             track = colors.area if colors.area != "transparent" else area_color
-            thumb = colors.text
+            thumb = text_color
             editor.styles.scrollbar_background = track
             editor.styles.scrollbar_background_hover = track
             editor.styles.scrollbar_background_active = track

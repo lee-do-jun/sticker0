@@ -47,8 +47,10 @@ def test_banana_preset_values():
 def test_builtin_board_presets_exist():
     assert "Graphite" in BOARD_PRESETS
     assert "Ivory" in BOARD_PRESETS
-    assert "Slate Blue" in BOARD_PRESETS
-    assert "Amber Night" in BOARD_PRESETS
+    assert "Slate" in BOARD_PRESETS
+    assert "Dust" in BOARD_PRESETS
+    assert "Forest" in BOARD_PRESETS
+    assert "Amber" in BOARD_PRESETS
 
 
 def test_graphite_board_preset_values():
@@ -58,11 +60,18 @@ def test_graphite_board_preset_values():
 
 
 def test_default_sticker_preset():
-    assert DEFAULT_STICKER_PRESET == "Graphite"
+    assert DEFAULT_STICKER_PRESET == "Clear"
 
 
 def test_default_board_preset():
-    assert DEFAULT_BOARD_PRESET == "Graphite"
+    assert DEFAULT_BOARD_PRESET == "Slate"
+
+
+def test_clear_preset_values():
+    c = STICKER_PRESETS["Clear"]
+    assert c.border == "inherit"
+    assert c.text == "inherit"
+    assert c.area == "transparent"
 
 
 def test_get_sticker_preset_found():

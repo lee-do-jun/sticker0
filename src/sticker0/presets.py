@@ -19,7 +19,7 @@ class BoardThemePreset:
 
 
 STICKER_PRESETS: dict[str, StickerPreset] = {
-    "Clear": StickerPreset("Clear", "white", "white", "transparent"),
+    "Clear": StickerPreset("Clear", "inherit", "inherit", "transparent"),
     "Graphite": StickerPreset("Graphite", "#d4d4d8", "#d4d4d8", "#2a2a2e"),
     "Mist": StickerPreset("Mist", "#2f2f2f", "#2f2f2f", "#f2f2f0"),
     "Ocean": StickerPreset("Ocean", "#dbeafe", "#dbeafe", "#1e3a5f"),
