@@ -2,9 +2,9 @@
 
 **Sticker dataclass**: `id`(uuid4), `title`(""), `content`(""), `colors`(StickerColors), `minimized`(False), `position`(StickerPosition x/y), `size`(StickerSize w=30 h=10), `created_at/updated_at`(UTC datetime)
 
-**StickerColors 기본값**: border="white", text="white", area="transparent" (= Snow 프리셋)
+**StickerColors 기본값** (dataclass): border/text="white", area="transparent" — 레거시 JSON에 `colors` 없으면 이 값으로 마이그레이션
 
-**레거시 마이그레이션**: `from_dict()`에서 `"colors"` 키 없으면 → 기본 `StickerColors()` 적용
+**새 스티커 색**: `board.add_new_sticker()`는 `AppConfig.board_theme`의 `sticker_border` / `sticker_text` / `sticker_area`를 사용 (기본은 Graphite 프리셋과 동일 계열)
 
 **touch()**: `updated_at` 갱신 — `storage.save()` 내부에서 자동 호출
 
@@ -13,43 +13,49 @@
 **StickerPreset**(frozen): name, border, text, area  
 **BoardThemePreset**(frozen): name, background, indicator
 
-| 스티커 프리셋 | border | text | area |
-|---|---|---|---|
-| Snow (기본) | white | white | transparent |
-| Ink | black | black | transparent |
-| Sky | white | white | #1565c0 |
-| Banana | black | black | #ffeb3b |
+**내장 스티커 프리셋**: Graphite, Mist, Ocean, Amber, Forest, Crimson, Violet, Sky, Banana (`DEFAULT_STICKER_PRESET = "Graphite"`)
 
-| 보드 프리셋 | background | indicator |
-|---|---|---|
-| Dark Mode (기본) | transparent | white |
-| Dark Base | black | white |
-| Light Base | white | black |
-| White Mode | transparent | black |
+**내장 보드 프리셋**: Graphite, Ivory, Slate Blue, Dust Rose, Forest, Amber Night (`DEFAULT_BOARD_PRESET = "Graphite"`)
 
-`get_sticker_preset(name, custom=None)`: custom 우선, 내장 fallback, 미발견 시 None
+`get_sticker_preset(name, custom=None)` / `get_board_preset(name, custom=None)`: custom 우선, 내장 fallback, 미발견 시 None
 
 ## Config 시스템 (config.py)
 
-**AppConfig**: `board_theme`(BoardTheme), `border`(BorderConfig top/sides), `defaults`(DefaultsConfig width/height/preset), `keybindings`(n/d/q), `sticker_presets`/`board_presets`(커스텀 dict)
+**BoardTheme** (`[theme]`): `background`, `indicator` — 보드 배경·UI 강조색. **추가로** `border` / `text` / `area`는 **새로 만드는 스티커**의 기본 `StickerColors` (스티커 프리셋을 고르면 다음 생성에도 반영되도록 `save_board_theme()`에 동일하게 저장)
+
+**BorderConfig**: top / sides (`BORDER_STYLE_MAP`: single→solid, double→double, heavy→heavy, simple→ascii)
+
+**DefaultsConfig**: width, height, **preset** (새 스티커에 쓸 기본 스티커 프리셋 이름; 기본 `"Graphite"`)
+
+**AppConfig**: `board_theme`, `border`, `defaults`, `keybindings`, `sticker_presets`, `board_presets` (TOML `[presets.sticker.*]` / `[presets.board.*]`에서 로드)
 
 **~/.stkrc 예시**:
 ```toml
 [theme]
-background = "black"   # indicator = "white"
+background = "#1e1e22"
+indicator = "#d4d4d8"
+border = "#d4d4d8"
+text = "#d4d4d8"
+area = "#2a2a2e"
+
 [border]
-top = "heavy"          # single|double|heavy|simple
+top = "heavy"
+sides = "heavy"
+
 [defaults]
-preset = "Snow"
+preset = "Graphite"
+
 [presets.sticker.Fire]
 border = "#ff0000"
 text = "#ffffff"
 area = "#330000"
+
+[presets.board.Solarized]
+background = "#002b36"
+indicator = "#839496"
 ```
 
-**BORDER_STYLE_MAP**: `single→solid`, `double→double`, `heavy→heavy`, `simple→ascii`
-
-**save_board_theme()**: `_replace_toml_section()`으로 [theme]만 교체, `tempfile.mkstemp()` + `os.replace()`로 atomic write
+**save_board_theme()**: `_replace_toml_section()`으로 `[theme]`만 교체, `tempfile.mkstemp()` + `os.replace()`로 atomic write
 
 ## Storage (storage.py)
 
@@ -63,7 +69,7 @@ area = "#330000"
 class Sticker0App(App):
     # Screen CSS: layers: base stickers menu
     # self.config = AppConfig.load()
-    # 키바인딩: n=새스티커, q=종료
+    # 키바인딩: n=새 스티커, q=종료
     # d/Delete: StickerWidget.on_key에서 처리
 ```
 
