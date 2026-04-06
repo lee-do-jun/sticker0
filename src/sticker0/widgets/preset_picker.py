@@ -5,6 +5,7 @@ from textual.app import ComposeResult
 from textual.widgets import Button
 from textual.message import Message
 from sticker0.sticker import StickerColors
+from sticker0.widgets.menu_button import PrimaryOnlyButton
 from sticker0.presets import StickerPreset, STICKER_PRESETS
 
 
@@ -63,7 +64,7 @@ class PresetPicker(Widget):
 
     def compose(self) -> ComposeResult:
         for name in self._all_presets:
-            yield Button(name, id=f"preset-{name}")
+            yield PrimaryOnlyButton(name, id=f"preset-{name}")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

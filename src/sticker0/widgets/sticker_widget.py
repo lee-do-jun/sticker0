@@ -224,6 +224,13 @@ class StickerWidget(Widget):
 
     def on_mouse_up(self, event: MouseUp) -> None:
         if event.button == 3:
+            try:
+                board = self.app.query_one("StickerBoard")
+                if board._pointer_is_on_popup_layer(event):
+                    event.stop()
+                    return
+            except NoMatches:
+                pass
             event.stop()
             self._drag_start = None
             self.release_mouse()

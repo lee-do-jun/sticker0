@@ -5,6 +5,8 @@ from textual.app import ComposeResult
 from textual.widgets import Button
 from textual.message import Message
 
+from sticker0.widgets.menu_button import PrimaryOnlyButton
+
 
 class ContextMenu(Widget):
     """스티커 우클릭 팝업 메뉴."""
@@ -59,12 +61,12 @@ class ContextMenu(Widget):
 
     def compose(self) -> ComposeResult:
         if self._minimized:
-            yield Button("Expand", id="menu-restore")
+            yield PrimaryOnlyButton("Expand", id="menu-restore")
         else:
-            yield Button("Minimize", id="menu-minimize")
-        yield Button("Color", id="menu-preset")
-        yield Button("Delete", id="menu-delete")
-        yield Button("Close", id="menu-close")
+            yield PrimaryOnlyButton("Minimize", id="menu-minimize")
+        yield PrimaryOnlyButton("Color", id="menu-preset")
+        yield PrimaryOnlyButton("Delete", id="menu-delete")
+        yield PrimaryOnlyButton("Close", id="menu-close")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

@@ -5,6 +5,7 @@ from textual.app import ComposeResult
 from textual.widgets import Button
 from textual.message import Message
 from sticker0.presets import BoardThemePreset, BOARD_PRESETS
+from sticker0.widgets.menu_button import PrimaryOnlyButton
 
 
 class ThemePicker(Widget):
@@ -63,7 +64,7 @@ class ThemePicker(Widget):
         for name in self._all_presets:
             safe_id = f"theme-{name.replace(' ', '-')}"
             self._id_to_name[safe_id] = name
-            yield Button(name, id=safe_id)
+            yield PrimaryOnlyButton(name, id=safe_id)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

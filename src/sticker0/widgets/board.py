@@ -102,16 +102,20 @@ class StickerBoard(Widget):
         for w in self.query(ThemePicker):
             w.remove()
 
-    @staticmethod
-    def _event_target_is_popup_layer(event: MouseEvent) -> bool:
-        """버블된 Mouse 이벤트의 원래 타깃이 메뉴/피커 위젯(또는 그 자식)인지."""
+    def _pointer_is_on_popup_layer(self, event: MouseEvent) -> bool:
+        """포인터가 메뉴/피커(또는 그 자식) 위에 있는지. screen 좌표로 히트 테스트."""
         from sticker0.widgets.context_menu import ContextMenu
         from sticker0.widgets.board_menu import BoardMenu
         from sticker0.widgets.preset_picker import PresetPicker
         from sticker0.widgets.theme_picker import ThemePicker
+        from textual.errors import NoWidget
 
         popup_types = (ContextMenu, BoardMenu, PresetPicker, ThemePicker)
-        w: Widget | None = event.widget
+        w: Widget | None
+        try:
+            w, _ = self.screen.get_widget_at(event.screen_x, event.screen_y)
+        except NoWidget:
+            w = event.widget
         while w is not None:
             if isinstance(w, popup_types):
                 return True
@@ -120,10 +124,13 @@ class StickerBoard(Widget):
 
     def on_mouse_up(self, event: MouseUp) -> None:
         if event.button == 1:
-            if not self._event_target_is_popup_layer(event):
+            if not self._pointer_is_on_popup_layer(event):
                 self.close_all_menus()
             return
         if event.button == 3:
+            if self._pointer_is_on_popup_layer(event):
+                event.stop()
+                return
             self.close_all_menus()
             from sticker0.widgets.board_menu import BoardMenu
             menu = BoardMenu(

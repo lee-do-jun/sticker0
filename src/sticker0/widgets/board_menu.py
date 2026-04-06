@@ -5,6 +5,8 @@ from textual.app import ComposeResult
 from textual.widgets import Button
 from textual.message import Message
 
+from sticker0.widgets.menu_button import PrimaryOnlyButton
+
 
 class BoardMenu(Widget):
     """빈 보드 영역 우클릭 팝업 메뉴."""
@@ -55,9 +57,9 @@ class BoardMenu(Widget):
         self.styles.border = ("round", self._indicator)
 
     def compose(self) -> ComposeResult:
-        yield Button("Create Sticker", id="board-create")
-        yield Button("Change Theme", id="board-theme")
-        yield Button("Quit Application", id="board-quit")
+        yield PrimaryOnlyButton("Create Sticker", id="board-create")
+        yield PrimaryOnlyButton("Change Theme", id="board-theme")
+        yield PrimaryOnlyButton("Quit Application", id="board-quit")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
