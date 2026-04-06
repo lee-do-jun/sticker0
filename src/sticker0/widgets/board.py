@@ -7,6 +7,7 @@ from textual.events import MouseDown, MouseEvent, MouseUp, Resize
 from sticker0.config import AppConfig
 from sticker0.sticker import Sticker, StickerColors, StickerSize
 from sticker0.storage import StickerStorage
+from sticker0.system_clipboard import read_os_clipboard_text, write_clipboard_from_app
 from sticker0.widgets.sticker_widget import StickerWidget
 
 
@@ -182,7 +183,21 @@ class StickerBoard(Container):
                 apply_clamp_popup_to_parent(w)
 
     def on_context_menu_menu_action(self, message) -> None:
-        if message.action == "delete":
+        if message.action == "copy":
+            for widget in self.query(StickerWidget):
+                if widget.sticker.id == message.sticker_id:
+                    write_clipboard_from_app(self.app, widget.sticker.content)
+                    break
+        elif message.action == "paste":
+            clip = read_os_clipboard_text()
+            if clip is None:
+                return
+            for widget in self.query(StickerWidget):
+                if widget.sticker.id == message.sticker_id:
+                    widget.replace_body_text(clip)
+                    self.save_sticker(widget.sticker)
+                    break
+        elif message.action == "delete":
             self.delete_sticker(message.sticker_id)
         elif message.action == "preset":
             from sticker0.widgets.preset_picker import PresetPicker

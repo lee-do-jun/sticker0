@@ -177,6 +177,15 @@ class StickerWidget(Widget):
     def _get_editor(self) -> TextArea:
         return self.query_one(f"#sticker-editor-{self.sticker.id}", TextArea)
 
+    def replace_body_text(self, text: str) -> None:
+        """스티커 본문과 TextArea를 동일한 문자열로 맞춘다(저장은 호출부)."""
+
+        self.sticker.content = text
+        try:
+            self._get_editor().text = text
+        except NoMatches:
+            pass
+
     def _classify_border(self, x: int, y: int) -> str | None:
         """테두리 영역 분류.
 

@@ -79,6 +79,8 @@ class ContextMenu(Widget):
             yield PrimaryOnlyButton(
                 "Minimize", id="menu-minimize", menu_indicator=mi, menu_panel_bg=mb
             )
+        yield PrimaryOnlyButton("Copy", id="menu-copy", menu_indicator=mi, menu_panel_bg=mb)
+        yield PrimaryOnlyButton("Paste", id="menu-paste", menu_indicator=mi, menu_panel_bg=mb)
         yield PrimaryOnlyButton("Color", id="menu-preset", menu_indicator=mi, menu_panel_bg=mb)
         yield PrimaryOnlyButton("Delete", id="menu-delete", menu_indicator=mi, menu_panel_bg=mb)
 
@@ -89,6 +91,8 @@ class ContextMenu(Widget):
             "menu-preset": "preset",
             "menu-minimize": "minimize",
             "menu-restore": "restore",
+            "menu-copy": "copy",
+            "menu-paste": "paste",
         }
         action = action_map.get(event.button.id or "", "")
         if action:

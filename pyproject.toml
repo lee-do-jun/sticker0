@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "textual>=0.80",
+    "pyperclip>=1.8",
 ]
 
 [project.scripts]

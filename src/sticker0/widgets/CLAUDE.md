@@ -67,7 +67,7 @@
 
 | 핸들러 | 동작 |
 |--------|------|
-| `on_context_menu_menu_action` | delete / preset(피커 마운트) / minimize / restore |
+| `on_context_menu_menu_action` | copy / paste / delete / preset(피커 마운트) / minimize / restore |
 | `on_board_menu_menu_action` | create / theme(피커 마운트) / quit |
 | `on_preset_picker_preset_selected` | sticker.colors 교체 + 스타일 재적용 + save |
 | `on_theme_picker_theme_selected` | board_bg/indicator 갱신 + 전 스티커 재적용 + save_board_theme() |
@@ -88,11 +88,13 @@
 | ThemePicker | 보드 테마 선택 | `ThemeSelected(background, indicator)` |
 
 **ContextMenu** (최소화 여부에 따라):
-- 일반: Minimize, Color, Delete
-- 최소화: Expand, Color, Delete  
+- 일반: Minimize, Copy, Paste, Color, Delete
+- 최소화: Expand, Copy, Paste, Color, Delete  
   (`"edit"` 액션 없음 — 텍스트는 스티커 영역 포커스로 편집)
 
-**ContextMenu action 값**: `"delete"`, `"preset"`, `"minimize"`, `"restore"`
+**ContextMenu action 값**: `"copy"`, `"paste"`, `"delete"`, `"preset"`, `"minimize"`, `"restore"`
+
+**클립보드**: `sticker0.system_clipboard` — OS는 `pyperclip`, Textual 버퍼·OSC52는 `write_clipboard_from_app`에서 `app.copy_to_clipboard`로 동기화.
 
 **BoardMenu action 값**: `"create"`, `"theme"`, `"quit"`
 

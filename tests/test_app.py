@@ -1,5 +1,6 @@
 # tests/test_app.py
 import pytest
+from textual.widgets import TextArea
 from sticker0.app import Sticker0App
 from sticker0.config import AppConfig
 from sticker0.sticker import Sticker, StickerColors
@@ -64,7 +65,6 @@ async def test_sticker_drag_moves_position(tmp_storage):
 
 @pytest.mark.asyncio
 async def test_textarea_always_present(tmp_storage):
-    from textual.widgets import TextArea
     s = Sticker(content="hello")
     tmp_storage.save(s)
     app = Sticker0App(storage=tmp_storage)
@@ -441,6 +441,76 @@ async def test_popup_menus_close_on_left_click_outside(tmp_storage):
         await pilot.click(widget, button=1, offset=(15, 5))
         await pilot.pause(0.1)
         assert len(app.query(BoardMenu)) == 0
+
+
+@pytest.mark.asyncio
+async def test_context_menu_copy_writes_clipboard(tmp_storage):
+    from unittest.mock import patch
+
+    from sticker0.widgets.context_menu import ContextMenu
+    from sticker0.widgets.sticker_widget import StickerWidget
+
+    s = Sticker(content="note body")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        menu = app.query_one(ContextMenu)
+        with patch("sticker0.widgets.board.write_clipboard_from_app") as mock_write:
+            await pilot.click(menu.query_one("#menu-copy"))
+            await pilot.pause(0.1)
+        mock_write.assert_called_once()
+        assert mock_write.call_args[0][1] == "note body"
+
+
+@pytest.mark.asyncio
+async def test_context_menu_paste_replaces_content(tmp_storage):
+    from unittest.mock import patch
+
+    from sticker0.widgets.context_menu import ContextMenu
+    from sticker0.widgets.sticker_widget import StickerWidget
+
+    s = Sticker(content="old")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        menu = app.query_one(ContextMenu)
+        with patch(
+            "sticker0.widgets.board.read_os_clipboard_text",
+            return_value="from-clip",
+        ):
+            await pilot.click(menu.query_one("#menu-paste"))
+            await pilot.pause(0.1)
+        assert widget.sticker.content == "from-clip"
+        assert widget.query_one(TextArea).text == "from-clip"
+        loaded = tmp_storage.load(s.id)
+        assert loaded.content == "from-clip"
+
+
+@pytest.mark.asyncio
+async def test_context_menu_paste_noop_when_clipboard_empty(tmp_storage):
+    from unittest.mock import patch
+
+    from sticker0.widgets.context_menu import ContextMenu
+    from sticker0.widgets.sticker_widget import StickerWidget
+
+    s = Sticker(content="unchanged")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        menu = app.query_one(ContextMenu)
+        with patch("sticker0.widgets.board.read_os_clipboard_text", return_value=None):
+            await pilot.click(menu.query_one("#menu-paste"))
+            await pilot.pause(0.1)
+        assert widget.sticker.content == "unchanged"
 
 
 @pytest.mark.asyncio
