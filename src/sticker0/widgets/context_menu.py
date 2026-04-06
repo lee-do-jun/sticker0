@@ -82,12 +82,14 @@ class ContextMenu(Widget):
         yield PrimaryOnlyButton("Copy", id="menu-copy", menu_indicator=mi, menu_panel_bg=mb)
         yield PrimaryOnlyButton("Paste", id="menu-paste", menu_indicator=mi, menu_panel_bg=mb)
         yield PrimaryOnlyButton("Change Color", id="menu-preset", menu_indicator=mi, menu_panel_bg=mb)
+        yield PrimaryOnlyButton("Change Border", id="menu-border", menu_indicator=mi, menu_panel_bg=mb)
         yield PrimaryOnlyButton("Delete", id="menu-delete", menu_indicator=mi, menu_panel_bg=mb)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
         action_map = {
             "menu-delete": "delete",
+            "menu-border": "border",
             "menu-preset": "preset",
             "menu-minimize": "minimize",
             "menu-restore": "restore",
