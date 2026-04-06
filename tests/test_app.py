@@ -631,3 +631,61 @@ async def test_new_sticker_uses_theme_default_colors(tmp_storage, tmp_config):
         assert widget.sticker.colors.border == bt.sticker_border
         assert widget.sticker.colors.text == bt.sticker_text
         assert widget.sticker.colors.area == bt.sticker_area
+
+
+@pytest.mark.asyncio
+async def test_workspace_mode_uses_local_sticker0_dir(tmp_path):
+    """workspace 모드에서 .sticker0/ 폴더에 스티커와 설정이 저장된다."""
+    from sticker0.widgets.board_menu import BoardMenu
+    from sticker0.widgets.sticker_widget import StickerWidget
+
+    data_dir = tmp_path / ".sticker0"
+    data_dir.mkdir()
+    config = AppConfig.load(
+        path=tmp_path / ".stkrc",
+        settings_path=data_dir / "settings.toml",
+    )
+    storage = StickerStorage(data_dir=data_dir)
+    app = Sticker0App(storage=storage, config=config)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        await pilot.click(menu.query_one("#board-create"))
+        await pilot.pause(0.1)
+        assert len(app.query(StickerWidget)) == 1
+
+    saved_files = list(data_dir.glob("*.json"))
+    assert len(saved_files) == 1
+
+
+@pytest.mark.asyncio
+async def test_workspace_mode_settings_toml_independent(tmp_path):
+    """workspace의 settings.toml은 글로벌과 독립적으로 관리된다."""
+    from sticker0.widgets.board_menu import BoardMenu
+    from sticker0.widgets.theme_picker import ThemePicker
+
+    data_dir = tmp_path / ".sticker0"
+    data_dir.mkdir()
+    config = AppConfig.load(
+        path=tmp_path / ".stkrc",
+        settings_path=data_dir / "settings.toml",
+    )
+    storage = StickerStorage(data_dir=data_dir)
+    app = Sticker0App(storage=storage, config=config)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        await pilot.click(menu.query_one("#board-theme"))
+        await pilot.pause(0.1)
+        picker = app.query_one(ThemePicker)
+        await pilot.click(picker.query_one("#theme-Ivory"))
+        await pilot.pause(0.1)
+
+    settings_file = data_dir / "settings.toml"
+    assert settings_file.exists()
+    content = settings_file.read_text(encoding="utf-8")
+    assert "[theme]" in content
