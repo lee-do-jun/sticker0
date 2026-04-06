@@ -3,26 +3,14 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
 from typing import Any
 
 
-class StickerColor(str, Enum):
-    YELLOW = "yellow"
-    BLUE = "blue"
-    GREEN = "green"
-    PINK = "pink"
-    WHITE = "white"
-    DARK = "dark"
-    NONE = "none"
-
-
-class BorderType(str, Enum):
-    ROUNDED = "rounded"
-    SHARP = "sharp"
-    DOUBLE = "double"
-    THICK = "thick"
-    ASCII = "ascii"
+@dataclass
+class StickerColors:
+    border: str = "white"
+    text: str = "white"
+    area: str = "transparent"
 
 
 @dataclass
@@ -42,8 +30,8 @@ class Sticker:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     title: str = ""
     content: str = ""
-    color: StickerColor = StickerColor.NONE
-    border: BorderType = BorderType.ROUNDED
+    colors: StickerColors = field(default_factory=StickerColors)
+    minimized: bool = False
     position: StickerPosition = field(default_factory=StickerPosition)
     size: StickerSize = field(default_factory=StickerSize)
     created_at: datetime = field(
@@ -58,8 +46,12 @@ class Sticker:
             "id": self.id,
             "title": self.title,
             "content": self.content,
-            "color": self.color.value,
-            "border": self.border.value,
+            "colors": {
+                "border": self.colors.border,
+                "text": self.colors.text,
+                "area": self.colors.area,
+            },
+            "minimized": self.minimized,
             "position": {"x": self.position.x, "y": self.position.y},
             "size": {"width": self.size.width, "height": self.size.height},
             "created_at": self.created_at.isoformat(),
@@ -69,12 +61,22 @@ class Sticker:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Sticker:
         now = datetime.now(timezone.utc).isoformat()
+        colors_data = data.get("colors")
+        if colors_data is not None:
+            colors = StickerColors(
+                border=colors_data.get("border", "white"),
+                text=colors_data.get("text", "white"),
+                area=colors_data.get("area", "transparent"),
+            )
+        else:
+            # Legacy v0.2.0 migration: 기존 color 필드 무시, 기본 Snow 적용
+            colors = StickerColors()
         return cls(
             id=data.get("id", str(uuid.uuid4())),
             title=data.get("title", ""),
             content=data.get("content", ""),
-            color=StickerColor(data.get("color", "none")),
-            border=BorderType(data.get("border", "rounded")),
+            colors=colors,
+            minimized=data.get("minimized", False),
             position=StickerPosition(**data.get("position", {})),
             size=StickerSize(**data.get("size", {})),
             created_at=datetime.fromisoformat(data.get("created_at", now)),
