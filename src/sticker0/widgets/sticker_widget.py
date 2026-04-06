@@ -260,6 +260,10 @@ class StickerWidget(Widget):
             max_w = max(1, self.sticker.size.width - 4)
             if len(first_line) > max_w:
                 first_line = first_line[: max_w - 3] + "..."
+            try:
+                self.query_one("#minimized-label").remove()
+            except NoMatches:
+                pass
             self.mount(Static(first_line, id="minimized-label"))
         else:
             self.styles.height = self.sticker.size.height
