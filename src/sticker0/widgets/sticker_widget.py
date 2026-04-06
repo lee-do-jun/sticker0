@@ -66,6 +66,9 @@ class StickerWidget(Widget):
     StickerWidget StickerTextArea:focus {
         border: none;
     }
+    StickerWidget #minimized-label {
+        padding: 0 1 0 1;
+    }
     """
 
     MIN_WIDTH = 20
