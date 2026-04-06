@@ -2,18 +2,18 @@
 import pytest
 from pathlib import Path
 from sticker0.storage import StickerStorage
-from sticker0.sticker import Sticker, StickerColor
+from sticker0.sticker import Sticker, StickerColors
 
 
 def test_save_and_load(tmp_path):
     storage = StickerStorage(data_dir=tmp_path)
-    s = Sticker(title="Hello", content="World", color=StickerColor.BLUE)
+    s = Sticker(title="Hello", content="World", colors=StickerColors(border="#0000ff", text="white", area="transparent"))
     storage.save(s)
     loaded = storage.load(s.id)
     assert loaded.id == s.id
     assert loaded.title == "Hello"
     assert loaded.content == "World"
-    assert loaded.color == StickerColor.BLUE
+    assert loaded.colors.border == "#0000ff"
 
 
 def test_load_all(tmp_path):
