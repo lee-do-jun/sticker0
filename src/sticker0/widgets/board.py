@@ -65,6 +65,7 @@ class StickerBoard(Container):
         sticker = Sticker(
             content=content if content is not None else "",
             colors=colors,
+            line=bt.sticker_line,
             size=StickerSize(
                 width=cfg.defaults.width,
                 height=cfg.defaults.height,
@@ -98,6 +99,7 @@ class StickerBoard(Container):
         from sticker0.widgets.board_menu import BoardMenu
         from sticker0.widgets.preset_picker import PresetPicker
         from sticker0.widgets.theme_picker import ThemePicker
+        from sticker0.widgets.border_picker import BorderPicker
         for w in self.query(ContextMenu):
             w.remove()
         for w in self.query(BoardMenu):
@@ -106,6 +108,8 @@ class StickerBoard(Container):
             w.remove()
         for w in self.query(ThemePicker):
             w.remove()
+        for w in self.query(BorderPicker):
+            w.remove()
 
     def _pointer_is_on_popup_layer(self, event: MouseEvent) -> bool:
         """포인터가 메뉴/피커(또는 그 자식) 위에 있는지. screen 좌표로 히트 테스트."""
@@ -113,9 +117,10 @@ class StickerBoard(Container):
         from sticker0.widgets.board_menu import BoardMenu
         from sticker0.widgets.preset_picker import PresetPicker
         from sticker0.widgets.theme_picker import ThemePicker
+        from sticker0.widgets.border_picker import BorderPicker
         from textual.errors import NoWidget
 
-        popup_types = (ContextMenu, BoardMenu, PresetPicker, ThemePicker)
+        popup_types = (ContextMenu, BoardMenu, PresetPicker, ThemePicker, BorderPicker)
         w: Widget | None
         try:
             w, _ = self.screen.get_widget_at(event.screen_x, event.screen_y)
@@ -177,6 +182,7 @@ class StickerBoard(Container):
         from sticker0.widgets.preset_picker import PresetPicker
         from sticker0.widgets.popup_geometry import apply_clamp_popup_to_parent
         from sticker0.widgets.theme_picker import ThemePicker
+        from sticker0.widgets.border_picker import BorderPicker
 
         for widget in self.query(StickerWidget):
             widget._clamp_position()
@@ -185,6 +191,7 @@ class StickerBoard(Container):
             BoardMenu,
             PresetPicker,
             ThemePicker,
+            BorderPicker,
         ):
             for w in self.query(popup_cls):
                 apply_clamp_popup_to_parent(w)
@@ -216,6 +223,17 @@ class StickerBoard(Container):
                 indicator=self.indicator,
                 board_background=self.board_bg,
                 custom_presets=self.config.sticker_presets,
+            )
+            self.mount(picker)
+        elif message.action == "border":
+            from sticker0.widgets.border_picker import BorderPicker
+            self.close_all_menus()
+            picker = BorderPicker(
+                sticker_id=message.sticker_id,
+                x=message.x,
+                y=message.y,
+                indicator=self.indicator,
+                board_background=self.board_bg,
             )
             self.mount(picker)
         elif message.action == "minimize":
@@ -261,6 +279,17 @@ class StickerBoard(Container):
         bt.sticker_border = message.colors.border
         bt.sticker_text = message.colors.text
         bt.sticker_area = message.colors.area
+        self.config.save_board_theme()
+
+    def on_border_picker_border_selected(self, message) -> None:
+        for widget in self.query(StickerWidget):
+            if widget.sticker.id == message.sticker_id:
+                widget.sticker.line = message.line
+                widget._apply_sticker_styles()
+                widget.refresh()
+                self.storage.save(widget.sticker)
+                break
+        self.config.board_theme.sticker_line = message.line
         self.config.save_board_theme()
 
     def on_theme_picker_theme_selected(self, message) -> None:

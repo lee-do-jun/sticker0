@@ -570,6 +570,49 @@ async def test_context_menu_paste_noop_when_clipboard_empty(tmp_storage):
 
 
 @pytest.mark.asyncio
+async def test_border_change_via_context_menu(tmp_storage, tmp_config):
+    """우클릭 → Change Border → round 선택 → border 변경 확인."""
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from sticker0.widgets.border_picker import BorderPicker
+    s = Sticker(title="Border test", line="solid")
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage, config=tmp_config)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        from sticker0.widgets.context_menu import ContextMenu
+        menu = app.query_one(ContextMenu)
+        await pilot.click(menu.query_one("#menu-border"))
+        await pilot.pause(0.1)
+        assert len(app.query(BorderPicker)) == 1
+        picker = app.query_one(BorderPicker)
+        await pilot.click(picker.query_one("#border-round"))
+        await pilot.pause(0.1)
+        loaded = tmp_storage.load(s.id)
+        assert loaded.line == "round"
+
+
+@pytest.mark.asyncio
+async def test_new_sticker_uses_theme_default_line(tmp_storage, tmp_config):
+    """새 스티커의 line은 config.board_theme.sticker_line과 일치."""
+    from sticker0.widgets.board_menu import BoardMenu
+    from sticker0.widgets.sticker_widget import StickerWidget
+
+    tmp_config.board_theme.sticker_line = "heavy"
+    app = Sticker0App(storage=tmp_storage, config=tmp_config)
+    async with app.run_test(size=(120, 40)) as pilot:
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        await pilot.click(menu.query_one("#board-create"))
+        await pilot.pause(0.1)
+        widget = app.query_one(StickerWidget)
+        assert widget.sticker.line == "heavy"
+
+
+@pytest.mark.asyncio
 async def test_new_sticker_uses_theme_default_colors(tmp_storage, tmp_config):
     """새 스티커 색은 로드된 config.board_theme 스티커 기본값과 일치."""
     from sticker0.widgets.board_menu import BoardMenu
