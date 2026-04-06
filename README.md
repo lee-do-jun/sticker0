@@ -175,5 +175,4 @@ sides = "heavy"
 [defaults]
 width = 30
 height = 10
-preset = "Graphite"   # built-in or custom sticker preset name
 ```
