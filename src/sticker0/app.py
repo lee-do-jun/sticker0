@@ -13,9 +13,14 @@ class Sticker0App(App):
     }
     """
 
-    def __init__(self, storage: StickerStorage | None = None, **kwargs) -> None:
+    def __init__(
+        self,
+        storage: StickerStorage | None = None,
+        config: AppConfig | None = None,
+        **kwargs,
+    ) -> None:
         super().__init__(**kwargs)
-        self.config = AppConfig.load()
+        self.config = config if config is not None else AppConfig.load()
         self.storage = storage or StickerStorage()
 
     def compose(self) -> ComposeResult:

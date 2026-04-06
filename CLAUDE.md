@@ -28,7 +28,7 @@ src/sticker0/
   app.py            # Sticker0App: config 보유 (생성·종료·삭제는 각 우클릭 메뉴)
   sticker.py        # Sticker dataclass, StickerColors, StickerPosition, StickerSize
   presets.py        # 내장 스티커/보드 프리셋 (Graphite 기본 등)
-  config.py         # AppConfig: ~/.stkrc TOML 파싱, atomic write
+  config.py         # AppConfig: ~/.stkrc(읽기 전용) + settings.toml(프로그램 상태) 파싱·저장
   storage.py        # StickerStorage: ~/.local/share/sticker0/*.json
   widgets/
     sticker_widget.py  # StickerWidget: 드래그/리사이즈/최소화
@@ -48,7 +48,7 @@ assets/
 
 ## 데이터 흐름
 
-- **생성**: `board.add_new_sticker()` → `[theme]`의 스티커 기본색 + `defaults` 크기 → `Sticker` → `storage.save()` → `StickerWidget` mount
+- **생성**: `board.add_new_sticker()` → `settings.toml [theme]`의 스티커 기본색 + `defaults` 크기 → `Sticker` → `storage.save()` → `StickerWidget` mount
 - **저장**: 드래그/TextArea 변경/최소화 → `board.save_sticker()` → `{uuid}.json`
 - **로드**: `board.compose()` → `storage.load_all()` → `Sticker.from_dict()`
 
@@ -77,6 +77,9 @@ uv run pytest -v    # 전체 테스트
 - `StickerColor`/`BorderType` enum 제거됨 (v0.3.0)
 - `color_picker.py` 삭제됨 → `preset_picker.py`
 - ThemePicker 버튼 id: 공백→하이픈 (`"Slate Blue"` → `#theme-Slate-Blue`)
+- `~/.stkrc`의 `[theme]`은 **완전히 무시됨** — 테마는 `settings.toml`에서만 읽음
+- Rich `Style(color=...)` 에 `"transparent"` 전달 불가 → `"default"` 로 치환
+- `AppConfig._settings_path`: `load()` 시 주입되는 비공개 속성, `save_board_theme()`이 사용
 
 ## 상세 레퍼런스
 

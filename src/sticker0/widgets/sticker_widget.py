@@ -133,7 +133,9 @@ class StickerWidget(Widget):
             if base_theme is not None:
                 theme_name = f"sticker-ta-{self.sticker.id}"
                 # 일반 글자와 동일한 (text + area) 조합은 커서 칸이 안 보임. 역전시켜 텍스트 색이 블록에 쓰이게 함.
-                cursor_style = Style(color=area_color, bgcolor=colors.text)
+                # Rich Style은 "transparent"를 해석하지 못하므로 "default"로 치환한다.
+                cursor_fg = area_color if area_color != "transparent" else "default"
+                cursor_style = Style(color=cursor_fg, bgcolor=colors.text)
                 editor.register_theme(
                     replace(base_theme, name=theme_name, cursor_style=cursor_style)
                 )

@@ -1,13 +1,28 @@
 # tests/test_app.py
 import pytest
 from sticker0.app import Sticker0App
+from sticker0.config import AppConfig
 from sticker0.sticker import Sticker, StickerColors
 from sticker0.storage import StickerStorage
 
 
 @pytest.fixture
+def tmp_path_pair(tmp_path):
+    """(storage_dir, settings_path) 쌍: 테스트 격리용."""
+    return tmp_path, tmp_path / "settings.toml"
+
+
+@pytest.fixture
 def tmp_storage(tmp_path):
     return StickerStorage(data_dir=tmp_path)
+
+
+@pytest.fixture
+def tmp_config(tmp_path):
+    return AppConfig.load(
+        path=tmp_path / ".stkrc",
+        settings_path=tmp_path / "settings.toml",
+    )
 
 
 @pytest.mark.asyncio
@@ -193,13 +208,13 @@ async def test_context_menu_delete_removes_sticker(tmp_storage):
 
 
 @pytest.mark.asyncio
-async def test_preset_change_via_context_menu(tmp_storage):
+async def test_preset_change_via_context_menu(tmp_storage, tmp_config):
     """우클릭 → 프리셋 변경 → Banana 선택 → 색상 변경 확인."""
     from sticker0.widgets.sticker_widget import StickerWidget
     from sticker0.widgets.preset_picker import PresetPicker
     s = Sticker(title="Preset test")
     tmp_storage.save(s)
-    app = Sticker0App(storage=tmp_storage)
+    app = Sticker0App(storage=tmp_storage, config=tmp_config)
     async with app.run_test(size=(120, 40)) as pilot:
         widget = app.query_one(StickerWidget)
         await pilot.click(widget, button=3, offset=(5, 2))
@@ -286,11 +301,11 @@ async def test_board_menu_quit_exits_app(tmp_storage):
 
 
 @pytest.mark.asyncio
-async def test_board_theme_change(tmp_storage):
+async def test_board_theme_change(tmp_storage, tmp_config):
     """보드 테마 변경 → 배경색 + indicator 변경 확인."""
     from sticker0.widgets.board_menu import BoardMenu
     from sticker0.widgets.theme_picker import ThemePicker
-    app = Sticker0App(storage=tmp_storage)
+    app = Sticker0App(storage=tmp_storage, config=tmp_config)
     async with app.run_test(size=(120, 40)) as pilot:
         board = app.query_one("StickerBoard")
         await pilot.click(board, button=3, offset=(60, 20))
@@ -404,12 +419,12 @@ async def test_popup_menus_close_on_left_click_outside(tmp_storage):
 
 
 @pytest.mark.asyncio
-async def test_new_sticker_uses_theme_default_colors(tmp_storage):
+async def test_new_sticker_uses_theme_default_colors(tmp_storage, tmp_config):
     """새 스티커 색은 로드된 config.board_theme 스티커 기본값과 일치."""
     from sticker0.widgets.board_menu import BoardMenu
     from sticker0.widgets.sticker_widget import StickerWidget
 
-    app = Sticker0App(storage=tmp_storage)
+    app = Sticker0App(storage=tmp_storage, config=tmp_config)
     bt = app.config.board_theme
     async with app.run_test(size=(120, 40)) as pilot:
         board = app.query_one("StickerBoard")

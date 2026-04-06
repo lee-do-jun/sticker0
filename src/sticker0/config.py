@@ -13,6 +13,7 @@ from sticker0.presets import (
 )
 
 CONFIG_PATH = Path.home() / ".stkrc"
+SETTINGS_PATH = Path.home() / ".local" / "share" / "sticker0" / "settings.toml"
 
 _G_THEME_STICKER = STICKER_PRESETS[DEFAULT_STICKER_PRESET]
 
@@ -45,7 +46,7 @@ def _replace_toml_section(content: str, section: str, new_block: str) -> str:
 
 @dataclass
 class BoardTheme:
-    """[theme]: 보드 배경/강조색 + 새 스티커 기본 색(border/text/area)."""
+    """보드 배경/강조색 + 새 스티커 기본 색(border/text/area). settings.toml [theme]에 저장."""
 
     background: str = "transparent"
     indicator: str = "white"
@@ -76,51 +77,72 @@ class AppConfig:
     board_presets: dict[str, BoardThemePreset] = field(default_factory=dict)
 
     @classmethod
-    def load(cls, path: Path = CONFIG_PATH) -> AppConfig:
-        if not path.exists():
-            return cls()
-        with open(path, "rb") as f:
-            data = tomllib.load(f)
+    def load(
+        cls,
+        path: Path = CONFIG_PATH,
+        settings_path: Path = SETTINGS_PATH,
+    ) -> AppConfig:
+        """설정을 로드한다.
+
+        Args:
+            path: ~/.stkrc — 인간만 편집하는 읽기 전용 설정
+                  ([border], [defaults], [presets.*] 포함. [theme] 무시)
+            settings_path: settings.toml — 프로그램이 읽고 쓰는 상태 파일
+                  ([theme] 포함)
+        """
         config = cls()
-        # Board theme
-        if (t := data.get("theme")) is not None:
-            config.board_theme.background = t.get("background", "transparent")
-            config.board_theme.indicator = t.get("indicator", "white")
-            config.board_theme.sticker_border = t.get(
-                "border", _G_THEME_STICKER.border
-            )
-            config.board_theme.sticker_text = t.get("text", _G_THEME_STICKER.text)
-            config.board_theme.sticker_area = t.get("area", _G_THEME_STICKER.area)
-        # Border
-        if (b := data.get("border")) is not None:
-            config.border.top = b.get("top", "double")
-            config.border.sides = b.get("sides", "single")
-        # Defaults
-        if (d := data.get("defaults")) is not None:
-            config.defaults.width = d.get("width", 30)
-            config.defaults.height = d.get("height", 10)
-            config.defaults.preset = d.get("preset", "Graphite")
-        # Custom presets
-        presets_data = data.get("presets", {})
-        if (sp := presets_data.get("sticker")) is not None:
-            for name, vals in sp.items():
-                config.sticker_presets[name] = StickerPreset(
-                    name=name,
-                    border=vals.get("border", "white"),
-                    text=vals.get("text", "white"),
-                    area=vals.get("area", "transparent"),
+        config._settings_path = settings_path
+
+        # ~/.stkrc 로드 ([theme]은 무시)
+        if path.exists():
+            with open(path, "rb") as f:
+                data = tomllib.load(f)
+            # Border
+            if (b := data.get("border")) is not None:
+                config.border.top = b.get("top", "double")
+                config.border.sides = b.get("sides", "single")
+            # Defaults
+            if (d := data.get("defaults")) is not None:
+                config.defaults.width = d.get("width", 30)
+                config.defaults.height = d.get("height", 10)
+                config.defaults.preset = d.get("preset", "Graphite")
+            # Custom presets
+            presets_data = data.get("presets", {})
+            if (sp := presets_data.get("sticker")) is not None:
+                for name, vals in sp.items():
+                    config.sticker_presets[name] = StickerPreset(
+                        name=name,
+                        border=vals.get("border", "white"),
+                        text=vals.get("text", "white"),
+                        area=vals.get("area", "transparent"),
+                    )
+            if (bp := presets_data.get("board")) is not None:
+                for name, vals in bp.items():
+                    config.board_presets[name] = BoardThemePreset(
+                        name=name,
+                        background=vals.get("background", "transparent"),
+                        indicator=vals.get("indicator", "white"),
+                    )
+
+        # settings.toml 로드 ([theme])
+        if settings_path.exists():
+            with open(settings_path, "rb") as f:
+                sdata = tomllib.load(f)
+            if (t := sdata.get("theme")) is not None:
+                config.board_theme.background = t.get("background", "transparent")
+                config.board_theme.indicator = t.get("indicator", "white")
+                config.board_theme.sticker_border = t.get(
+                    "border", _G_THEME_STICKER.border
                 )
-        if (bp := presets_data.get("board")) is not None:
-            for name, vals in bp.items():
-                config.board_presets[name] = BoardThemePreset(
-                    name=name,
-                    background=vals.get("background", "transparent"),
-                    indicator=vals.get("indicator", "white"),
-                )
+                config.board_theme.sticker_text = t.get("text", _G_THEME_STICKER.text)
+                config.board_theme.sticker_area = t.get("area", _G_THEME_STICKER.area)
+
         return config
 
-    def save_board_theme(self, path: Path = CONFIG_PATH) -> None:
-        """[theme] 섹션에 보드 배경/indicator와 새 스티커 기본 색을 atomic write."""
+    def save_board_theme(self, path: Path | None = None) -> None:
+        """settings.toml의 [theme] 섹션에 보드 배경/indicator와 새 스티커 기본 색을 atomic write."""
+        actual_path = path if path is not None else getattr(self, "_settings_path", SETTINGS_PATH)
+        actual_path.parent.mkdir(parents=True, exist_ok=True)
         bt = self.board_theme
         theme_block = (
             "[theme]\n"
@@ -130,18 +152,18 @@ class AppConfig:
             f'text = "{bt.sticker_text}"\n'
             f'area = "{bt.sticker_area}"\n'
         )
-        if path.exists():
+        if actual_path.exists():
             content = _replace_toml_section(
-                path.read_text(encoding="utf-8"), "theme", theme_block
+                actual_path.read_text(encoding="utf-8"), "theme", theme_block
             )
         else:
             content = theme_block
         # Atomic write
-        fd, tmp_path_str = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
+        fd, tmp_path_str = tempfile.mkstemp(dir=actual_path.parent, suffix=".tmp")
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(content)
-            os.replace(tmp_path_str, str(path))
+            os.replace(tmp_path_str, str(actual_path))
         except BaseException:
             try:
                 os.unlink(tmp_path_str)
