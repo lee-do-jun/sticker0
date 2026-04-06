@@ -123,7 +123,7 @@ tmux new-window -n stickers 'stk'
 ```
 sticker0/
 ├── pyproject.toml
-├── SPEC.md
+├── docs/spec/2026-04-06-product-spec.md
 ├── README.md
 └── src/
     └── sticker0/

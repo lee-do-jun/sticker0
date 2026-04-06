@@ -203,7 +203,7 @@ StickerWidget {
 
 ### Before (Original)
 
-"UPDATE_1_ASK.md — 스티커 z-index, 상/하단바 제거, 빈 영역 우클릭 메뉴, 단일 클릭 편집, 투명 배경, 테두리 역할 분리"
+"`docs/ask/2026-04-06-stakeholder-notes-v0.2.md` — 스티커 z-index, 상/하단바 제거, 빈 영역 우클릭 메뉴, 단일 클릭 편집, 투명 배경, 테두리 역할 분리"
 
 ### After (Clarified)
 

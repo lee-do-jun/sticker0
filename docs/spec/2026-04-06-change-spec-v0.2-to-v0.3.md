@@ -294,7 +294,7 @@ def _clamp_position(self) -> None:
 
 ### Before (Original)
 
-"UPDATE_2_ASK.md — 컨텍스트 메뉴 버그, 스티커 프리셋, 보드 테마, 최소화, 테두리 설정, 스크롤바, 화면 제약"
+"`docs/ask/2026-04-06-stakeholder-notes-v0.3.md` — 컨텍스트 메뉴 버그, 스티커 프리셋, 보드 테마, 최소화, 테두리 설정, 스크롤바, 화면 제약"
 
 ### After (Clarified)
 
