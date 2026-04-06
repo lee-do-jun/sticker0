@@ -139,9 +139,23 @@ class StickerBoard(Widget):
             self.mount(menu)
 
     def on_resize(self, event: Resize) -> None:
-        """터미널 크기 변경 시 모든 스티커 위치 보정."""
+        """터미널 크기 변경 시 모든 스티커·팝업 위치 보정."""
+        from sticker0.widgets.board_menu import BoardMenu
+        from sticker0.widgets.context_menu import ContextMenu
+        from sticker0.widgets.preset_picker import PresetPicker
+        from sticker0.widgets.popup_geometry import apply_clamp_popup_to_parent
+        from sticker0.widgets.theme_picker import ThemePicker
+
         for widget in self.query(StickerWidget):
             widget._clamp_position()
+        for popup_cls in (
+            ContextMenu,
+            BoardMenu,
+            PresetPicker,
+            ThemePicker,
+        ):
+            for w in self.query(popup_cls):
+                apply_clamp_popup_to_parent(w)
 
     def on_context_menu_menu_action(self, message) -> None:
         if message.action == "delete":

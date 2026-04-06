@@ -6,6 +6,7 @@ from textual.widgets import Button
 from textual.message import Message
 
 from sticker0.widgets.menu_button import PrimaryOnlyButton
+from sticker0.widgets.popup_geometry import apply_clamp_popup_to_parent
 
 
 class ContextMenu(Widget):
@@ -62,6 +63,10 @@ class ContextMenu(Widget):
     def on_mount(self) -> None:
         self.styles.offset = (self._menu_x, self._menu_y)
         self.styles.border = ("round", self._indicator)
+        self.call_after_refresh(self._clamp_to_parent)
+
+    def _clamp_to_parent(self) -> None:
+        apply_clamp_popup_to_parent(self)
 
     def compose(self) -> ComposeResult:
         if self._minimized:
@@ -83,7 +88,10 @@ class ContextMenu(Widget):
         if action:
             self.post_message(
                 self.MenuAction(
-                    action, self.sticker_id, x=self._menu_x, y=self._menu_y
+                    action,
+                    self.sticker_id,
+                    x=int(self.offset.x),
+                    y=int(self.offset.y),
                 )
             )
             self.remove()

@@ -6,6 +6,7 @@ from textual.widgets import Button
 from textual.message import Message
 from sticker0.presets import BoardThemePreset, BOARD_PRESETS
 from sticker0.widgets.menu_button import PrimaryOnlyButton
+from sticker0.widgets.popup_geometry import apply_clamp_popup_to_parent
 
 
 class ThemePicker(Widget):
@@ -58,6 +59,10 @@ class ThemePicker(Widget):
     def on_mount(self) -> None:
         self.styles.offset = (self._x, self._y)
         self.styles.border = ("round", self._indicator)
+        self.call_after_refresh(self._clamp_to_parent)
+
+    def _clamp_to_parent(self) -> None:
+        apply_clamp_popup_to_parent(self)
 
     def compose(self) -> ComposeResult:
         self._id_to_name: dict[str, str] = {}
