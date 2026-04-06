@@ -2,7 +2,7 @@
 from __future__ import annotations
 from textual.widget import Widget
 from textual.app import ComposeResult
-from textual.events import MouseEvent, MouseUp, Resize
+from textual.events import MouseDown, MouseEvent, MouseUp, Resize
 from sticker0.config import AppConfig
 from sticker0.sticker import Sticker, StickerColors, StickerSize
 from sticker0.storage import StickerStorage
@@ -117,6 +117,30 @@ class StickerBoard(Widget):
                 return True
             w = w.parent
         return False
+
+    def _pointer_is_on_sticker_widget(self, event: MouseEvent) -> bool:
+        """포인터가 StickerWidget(또는 그 자식) 위인지."""
+        from textual.errors import NoWidget
+
+        try:
+            w, _ = self.screen.get_widget_at(event.screen_x, event.screen_y)
+        except NoWidget:
+            return False
+        while w is not None:
+            if isinstance(w, StickerWidget):
+                return True
+            w = w.parent
+        return False
+
+    def on_mouse_down(self, event: MouseDown) -> None:
+        """빈 보드 클릭 시 TextArea 포커스 해제 → 앱 단축키(n/q/d)가 동작하도록."""
+        if event.button != 1:
+            return
+        if self._pointer_is_on_popup_layer(event):
+            return
+        if self._pointer_is_on_sticker_widget(event):
+            return
+        self.app.set_focus(None)
 
     def on_mouse_up(self, event: MouseUp) -> None:
         if event.button == 1:
