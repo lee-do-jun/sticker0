@@ -22,6 +22,7 @@ A terminal sticky notes TUI app built with Python + [Textual](https://textual.te
 - **Minimize / restore** — double-click the top border or use the context menu
 - **Screen clamping** — stickers stay within the terminal
 - **Auto-save** — each sticker stored as JSON under `~/.local/share/sticker0/`
+- **Workspace mode** — `stk -w` stores stickers and settings in a local `.sticker0/` directory per project, so each workspace keeps its own notes and theme
 - **Config** — `~/.stkrc` for custom presets and **defaults** (new-sticker size and default color preset name); **runtime theme** (board colors, default sticker colors, default border line style) is written to `~/.local/share/sticker0/settings.toml` when you use the in-app menus
 
 ---
@@ -115,12 +116,26 @@ For more options (Homebrew, WinGet, PyPI, etc.), see the official uv installatio
 ## Usage
 
 ```bash
-stk
+stk                       # global mode (~/.local/share/sticker0/)
+stk -w                    # workspace mode (./sticker0/ in current directory)
+stk --workspace /path     # workspace mode (specified path)
 ```
 
 ---
 
 Create stickers from the board right-click menu (**Create**), or **New from clipboard** when the OS clipboard has text. On a sticker, use **Copy** / **Paste**, **Change Color** (preset), or **Change Border** (outline style) in the context menu. Delete with **Delete**; quit with **Quit** on the board menu.
+
+### Workspace mode
+
+By default sticker0 stores all data under `~/.local/share/sticker0/`. With the **`--workspace`** (or **`-w`**) flag, sticker0 instead uses a `.sticker0/` directory inside the given project root:
+
+```bash
+cd ~/projects/my-app
+stk -w                    # creates & uses ./sticker0/
+stk -w ~/projects/other   # creates & uses ~/projects/other/.sticker0/
+```
+
+Each workspace has its **own stickers and `settings.toml`** (independent theme, border defaults, etc.). `~/.stkrc` is still applied as the shared base config.
 
 ---
 
