@@ -26,8 +26,7 @@
 
 **`_apply_sticker_styles()`**:
 - `colors.area == "transparent"` → `_get_board_background()` 상속
-- border: 4면 sides 스타일 후 top 덮어씀
-- `BORDER_STYLE_MAP`: `single→solid, double→double, heavy→heavy, simple→ascii`
+- border: `sticker.line`으로 4면 통일 적용 (`BORDER_STYLES` 외 값은 `DEFAULT_BORDER_LINE` fallback)
 
 **최소화 (`_set_minimized`)**:
 - `True`: height=3, TextArea hide, `#minimized-label` Static mount (첫 줄 + ellipsis)
@@ -54,7 +53,7 @@
 
 **주요 속성**: `board_bg`, `indicator` (config에서 초기화)
 
-**`close_all_menus()`**: ContextMenu, BoardMenu, PresetPicker, ThemePicker 전부 remove
+**`close_all_menus()`**: ContextMenu, BoardMenu, PresetPicker, BorderPicker, ThemePicker 전부 remove
 
 **마우스**:
 - **좌클릭 다운** (`on_mouse_down`, button 1): 포인터가 팝업이나 스티커 위가 아니면 `app.set_focus(None)` — 빈 보드 클릭 시 TextArea 포커스 해제 (종료·삭제는 각 우클릭 메뉴)
@@ -67,7 +66,7 @@
 
 | 핸들러 | 동작 |
 |--------|------|
-| `on_context_menu_menu_action` | copy / paste / delete / preset(피커 마운트) / minimize / restore |
+| `on_context_menu_menu_action` | copy / paste / delete / preset(피커 마운트) / border(피커 마운트) / minimize / restore |
 | `on_board_menu_menu_action` | create / new_from_clipboard / theme(피커 마운트) / quit |
 | `on_preset_picker_preset_selected` | sticker.colors 교체 + 스타일 재적용 + save |
 | `on_theme_picker_theme_selected` | board_bg/indicator 갱신 + 전 스티커 재적용 + save_board_theme() |
@@ -85,20 +84,23 @@
 | ContextMenu | 스티커 우클릭 | `MenuAction(action, sticker_id, x, y)` |
 | BoardMenu | 보드 우클릭 | `MenuAction(action, x, y)` |
 | PresetPicker | 스티커 프리셋 선택 | `PresetSelected(sticker_id, colors)` |
+| BorderPicker | 스티커 border 스타일 선택 | `BorderSelected(sticker_id, line)` |
 | ThemePicker | 보드 테마 선택 | `ThemeSelected(background, indicator)` |
 
 **ContextMenu** (최소화 여부에 따라):
-- 일반: Minimize, Copy, Paste, Color, Delete
-- 최소화: Expand, Copy, Paste, Color, Delete  
+- 일반: Minimize, Copy, Paste, Color, Border, Delete
+- 최소화: Expand, Copy, Paste, Color, Border, Delete  
   (`"edit"` 액션 없음 — 텍스트는 스티커 영역 포커스로 편집)
 
-**ContextMenu action 값**: `"copy"`, `"paste"`, `"delete"`, `"preset"`, `"minimize"`, `"restore"`
+**ContextMenu action 값**: `"copy"`, `"paste"`, `"delete"`, `"preset"`, `"border"`, `"minimize"`, `"restore"`
 
 **클립보드**: `sticker0.system_clipboard` — OS는 `pyperclip`, Textual 버퍼·OSC52는 `write_clipboard_from_app`에서 `app.copy_to_clipboard`로 동기화.
 
 **BoardMenu action 값**: `"create"`, `"new_from_clipboard"`, `"theme"`, `"quit"`
 
 **PresetPicker 버튼 id**: `f"preset-{name}"` (예: `#preset-Graphite`)
+
+**BorderPicker 버튼 id**: `f"border-{style}"` (예: `#border-solid`, `#border-heavy`)
 
 **ThemePicker 버튼 id**: 공백→하이픈 (`"Slate Blue"` → `#theme-Slate-Blue`)  
 - `_id_to_name` dict로 역매핑 유지

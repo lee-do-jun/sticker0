@@ -1,6 +1,8 @@
 ## 데이터 모델 (sticker.py)
 
-**Sticker dataclass**: `id`(uuid4), `title`(""), `content`(""), `colors`(StickerColors), `minimized`(False), `position`(StickerPosition x/y), `size`(StickerSize w=30 h=10), `created_at/updated_at`(UTC datetime)
+**Sticker dataclass**: `id`(uuid4), `title`(""), `content`(""), `colors`(StickerColors), `line`(DEFAULT_BORDER_LINE="solid"), `minimized`(False), `position`(StickerPosition x/y), `size`(StickerSize w=30 h=10), `created_at/updated_at`(UTC datetime)
+
+**BORDER_STYLES**: `["solid", "heavy", "round", "double", "ascii", "inner", "outer", "dashed"]` — 사용 가능한 Textual border 타입
 
 **StickerColors 기본값** (dataclass): border/text="white", area="transparent" — 레거시 JSON에 `colors` 없으면 이 값으로 마이그레이션
 
@@ -31,22 +33,16 @@
 - `~/.stkrc`에 `[theme]`이 있어도 **완전히 무시**됨. 프로그램은 이 파일을 절대 쓰지 않음.
 - `settings.toml`은 현재 적용된 테마와 마지막 스티커 색을 저장. 없으면 기본값 사용.
 
-**BoardTheme** (`settings.toml [theme]`): `background`, `indicator` — 보드 배경·UI 강조색. **추가로** `border` / `text` / `area`는 **새로 만드는 스티커**의 기본 `StickerColors` (스티커 프리셋을 고르면 다음 생성에도 반영되도록 `save_board_theme()`에 동일하게 저장)
-
-**BorderConfig**: top / sides (`BORDER_STYLE_MAP`: single→solid, double→double, heavy→heavy, simple→ascii)
+**BoardTheme** (`settings.toml [theme]`): `background`, `indicator` — 보드 배경·UI 강조색. **추가로** `border` / `text` / `area`는 **새로 만드는 스티커**의 기본 `StickerColors`, `sticker_line`은 기본 border 스타일 (스티커 프리셋/border를 고르면 다음 생성에도 반영되도록 `save_board_theme()`에 동일하게 저장)
 
 **DefaultsConfig**: width, height, **preset** (새 스티커에 쓸 기본 스티커 프리셋 이름; 기본 `"Graphite"`)
 
-**AppConfig**: `board_theme`, `border`, `defaults`, `sticker_presets`, `board_presets`  
-- `load(path, settings_path)`: `path`(stkrc)에서 border/defaults/presets 읽기; `settings_path`(settings.toml)에서 `[theme]` 읽기  
+**AppConfig**: `board_theme`, `defaults`, `sticker_presets`, `board_presets`  
+- `load(path, settings_path)`: `path`(stkrc)에서 defaults/presets 읽기; `settings_path`(settings.toml)에서 `[theme]` 읽기  
 - `_settings_path`: load 시 주입된 settings.toml 경로 — `save_board_theme()`이 이곳을 기본 대상으로 사용
 
 **~/.stkrc 예시** (인간만 편집):
 ```toml
-[border]
-top = "heavy"
-sides = "heavy"
-
 [defaults]
 preset = "Graphite"
 
@@ -68,6 +64,7 @@ indicator = "#d4d4d8"
 border = "#d4d4d8"
 text = "#d4d4d8"
 area = "#2a2a2e"
+line = "solid"
 ```
 
 **save_board_theme()**: `_replace_toml_section()`으로 `settings.toml`의 `[theme]`만 교체, `tempfile.mkstemp()` + `os.replace()`로 atomic write. 부모 디렉터리 없으면 자동 생성.

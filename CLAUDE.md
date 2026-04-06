@@ -36,6 +36,7 @@ src/sticker0/
     context_menu.py    # 스티커 우클릭 팝업
     board_menu.py      # 보드 우클릭 팝업
     preset_picker.py   # 스티커 프리셋 선택 팝업
+    border_picker.py   # 스티커 border 스타일 선택 팝업
     theme_picker.py    # 보드 테마 선택 팝업
     menu_button.py     # PrimaryOnlyButton — 팝업 전용 버튼(좌클릭만 press)
     popup_geometry.py  # 팝업 부모 영역 클램프, 보드 테마 색 적용
@@ -75,6 +76,7 @@ uv run pytest -v    # 전체 테스트
 - TextArea에 `background: transparent` 직접 설정 금지
 - 빈 문자열 `""` 색상 금지
 - `StickerColor`/`BorderType` enum 제거됨 (v0.3.0)
+- `BorderConfig`/`BORDER_STYLE_MAP` 제거됨 — border는 스티커별 `line` 필드로 관리
 - `color_picker.py` 삭제됨 → `preset_picker.py`
 - ThemePicker 버튼 id: 공백→하이픈 (`"Slate Blue"` → `#theme-Slate-Blue`)
 - `~/.stkrc`의 `[theme]`은 **완전히 무시됨** — 테마는 `settings.toml`에서만 읽음
