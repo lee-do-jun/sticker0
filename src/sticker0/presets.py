@@ -19,6 +19,7 @@ class BoardThemePreset:
 
 
 STICKER_PRESETS: dict[str, StickerPreset] = {
+    "Clear": StickerPreset("Clear", "white", "white", "transparent"),
     "Graphite": StickerPreset("Graphite", "#d4d4d8", "#d4d4d8", "#2a2a2e"),
     "Mist": StickerPreset("Mist", "#2f2f2f", "#2f2f2f", "#f2f2f0"),
     "Ocean": StickerPreset("Ocean", "#dbeafe", "#dbeafe", "#1e3a5f"),
@@ -33,14 +34,14 @@ STICKER_PRESETS: dict[str, StickerPreset] = {
 BOARD_PRESETS: dict[str, BoardThemePreset] = {
     "Graphite": BoardThemePreset("Graphite", "#1e1e22", "#d4d4d8"),
     "Ivory": BoardThemePreset("Ivory", "#f5f3ef", "#2f2f2f"),
-    "Slate Blue": BoardThemePreset("Slate Blue", "#2a2f45", "#cbd5ff"),
-    "Dust Rose": BoardThemePreset("Dust Rose", "#f2e9e4", "#5c3a3a"),
+    "Slate": BoardThemePreset("Slate", "#2a2f45", "#cbd5ff"),
+    "Dust": BoardThemePreset("Dust", "#f2e9e4", "#5c3a3a"),
     "Forest": BoardThemePreset("Forest", "#1f2a24", "#c7e7d3"),
-    "Amber Night": BoardThemePreset("Amber Night", "#2b2418", "#ffcf99"),
+    "Amber": BoardThemePreset("Amber", "#2b2418", "#ffcf99"),
 }
 
-DEFAULT_STICKER_PRESET = "Graphite"
-DEFAULT_BOARD_PRESET = "Graphite"
+DEFAULT_STICKER_PRESET = "Clear"
+DEFAULT_BOARD_PRESET = "Slate"
 
 
 def get_sticker_preset(

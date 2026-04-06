@@ -1,5 +1,6 @@
 # src/sticker0/widgets/board.py
 from __future__ import annotations
+from textual.containers import Container
 from textual.widget import Widget
 from textual.app import ComposeResult
 from textual.events import MouseDown, MouseEvent, MouseUp, Resize
@@ -9,7 +10,7 @@ from sticker0.storage import StickerStorage
 from sticker0.widgets.sticker_widget import StickerWidget
 
 
-class StickerBoard(Widget):
+class StickerBoard(Container):
     DEFAULT_CSS = """
     StickerBoard {
         width: 1fr;

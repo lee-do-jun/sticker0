@@ -6,8 +6,10 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from sticker0.presets import (
+    BOARD_PRESETS,
     STICKER_PRESETS,
     BoardThemePreset,
+    DEFAULT_BOARD_PRESET,
     DEFAULT_STICKER_PRESET,
     StickerPreset,
 )
@@ -16,6 +18,7 @@ CONFIG_PATH = Path.home() / ".stkrc"
 SETTINGS_PATH = Path.home() / ".local" / "share" / "sticker0" / "settings.toml"
 
 _G_THEME_STICKER = STICKER_PRESETS[DEFAULT_STICKER_PRESET]
+_G_THEME_BOARD = BOARD_PRESETS[DEFAULT_BOARD_PRESET]
 
 
 def _replace_toml_section(content: str, section: str, new_block: str) -> str:
@@ -48,8 +51,8 @@ def _replace_toml_section(content: str, section: str, new_block: str) -> str:
 class BoardTheme:
     """보드 배경/강조색 + 새 스티커 기본 색(border/text/area). settings.toml [theme]에 저장."""
 
-    background: str = "transparent"
-    indicator: str = "white"
+    background: str = _G_THEME_BOARD.background
+    indicator: str = _G_THEME_BOARD.indicator
     sticker_border: str = _G_THEME_STICKER.border
     sticker_text: str = _G_THEME_STICKER.text
     sticker_area: str = _G_THEME_STICKER.area
@@ -129,8 +132,12 @@ class AppConfig:
             with open(settings_path, "rb") as f:
                 sdata = tomllib.load(f)
             if (t := sdata.get("theme")) is not None:
-                config.board_theme.background = t.get("background", "transparent")
-                config.board_theme.indicator = t.get("indicator", "white")
+                config.board_theme.background = t.get(
+                    "background", _G_THEME_BOARD.background
+                )
+                config.board_theme.indicator = t.get(
+                    "indicator", _G_THEME_BOARD.indicator
+                )
                 config.board_theme.sticker_border = t.get(
                     "border", _G_THEME_STICKER.border
                 )

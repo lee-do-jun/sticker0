@@ -6,15 +6,21 @@ from sticker0.config import AppConfig, BoardTheme, BorderConfig
 
 
 def test_defaults_when_no_file(tmp_path):
-    from sticker0.presets import STICKER_PRESETS, DEFAULT_STICKER_PRESET
+    from sticker0.presets import (
+        BOARD_PRESETS,
+        DEFAULT_BOARD_PRESET,
+        DEFAULT_STICKER_PRESET,
+        STICKER_PRESETS,
+    )
 
     g = STICKER_PRESETS[DEFAULT_STICKER_PRESET]
+    bg = BOARD_PRESETS[DEFAULT_BOARD_PRESET]
     config = AppConfig.load(
         path=tmp_path / ".stkrc",
         settings_path=tmp_path / "settings.toml",
     )
-    assert config.board_theme.background == "transparent"
-    assert config.board_theme.indicator == "white"
+    assert config.board_theme.background == bg.background
+    assert config.board_theme.indicator == bg.indicator
     assert config.board_theme.sticker_border == g.border
     assert config.board_theme.sticker_text == g.text
     assert config.board_theme.sticker_area == g.area
@@ -77,9 +83,12 @@ border = "#aabbcc"
         path=rc,
         settings_path=tmp_path / "settings.toml",
     )
-    # 기본값 그대로여야 함
-    assert config.board_theme.background == "transparent"
-    assert config.board_theme.indicator == "white"
+    # 기본값(Graphite 보드 프리셋) 그대로여야 함
+    from sticker0.presets import BOARD_PRESETS, DEFAULT_BOARD_PRESET
+
+    bg = BOARD_PRESETS[DEFAULT_BOARD_PRESET]
+    assert config.board_theme.background == bg.background
+    assert config.board_theme.indicator == bg.indicator
 
 
 def test_settings_toml_takes_priority_over_defaults(tmp_path):
@@ -144,7 +153,10 @@ def test_partial_config_uses_defaults(tmp_path):
     config = AppConfig.load(path=rc, settings_path=tmp_path / "settings.toml")
     assert config.border.top == "heavy"
     assert config.border.sides == "single"  # default
-    assert config.board_theme.indicator == "white"  # default
+    from sticker0.presets import BOARD_PRESETS, DEFAULT_BOARD_PRESET
+
+    bg = BOARD_PRESETS[DEFAULT_BOARD_PRESET]
+    assert config.board_theme.indicator == bg.indicator  # default
 
 
 def test_save_board_theme_creates_settings_toml(tmp_path):
