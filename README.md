@@ -18,10 +18,11 @@ A terminal sticky notes TUI app built with Python + [Textual](https://textual.te
 - **Clipboard** — **Copy** / **Paste** on the sticker menu; **New from clipboard** on the board menu (OS clipboard via `pyperclip`)
 - **Sticker color presets** — Clear, Graphite, Mist, Ocean, Amber, Forest, Crimson, Violet, Sky, Banana (plus custom `[presets.sticker.*]` in `~/.stkrc`)
 - **Board themes** — Graphite, Ivory, Slate, Dust, Forest, Amber (plus custom `[presets.board.*]` in `~/.stkrc`)
+- **Border line styles** — per-sticker **Change Border** in the context menu (solid, heavy, round, double, ascii, inner, outer, dashed); each sticker saves its own style in JSON, and the last choice becomes the default for newly created stickers via `settings.toml`
 - **Minimize / restore** — double-click the top border or use the context menu
 - **Screen clamping** — stickers stay within the terminal
 - **Auto-save** — each sticker stored as JSON under `~/.local/share/sticker0/`
-- **Config** — `~/.stkrc` for border style, size defaults, and custom presets; active board/sticker colors live in `~/.local/share/sticker0/settings.toml` (updated when you pick themes from the menus)
+- **Config** — `~/.stkrc` for custom presets and **defaults** (new-sticker size and default color preset name); **runtime theme** (board colors, default sticker colors, default border line style) is written to `~/.local/share/sticker0/settings.toml` when you use the in-app menus
 
 ---
 
@@ -119,7 +120,7 @@ stk
 
 ---
 
-Create stickers from the board right-click menu (**Create**), or **New from clipboard** when the OS clipboard has text. On a sticker, use **Copy** / **Paste** in the context menu. Delete with **Delete**; quit with **Quit** on the board menu.
+Create stickers from the board right-click menu (**Create**), or **New from clipboard** when the OS clipboard has text. On a sticker, use **Copy** / **Paste**, **Change Color** (preset), or **Change Border** (outline style) in the context menu. Delete with **Delete**; quit with **Quit** on the board menu.
 
 ---
 
@@ -127,7 +128,15 @@ Create stickers from the board right-click menu (**Create**), or **New from clip
 
 **`~/.stkrc`** is for human-edited options only: custom **sticker** and **board** presets, and **defaults** (new-sticker size and default preset name). The app does not write this file.
 
-**Runtime colors** (current board background/accent and colors used for newly created stickers after you pick presets in the UI) are stored under **`~/.local/share/sticker0/settings.toml`** in a `[theme]` section. A `[theme]` block in `~/.stkrc`, if present, is **ignored** — keep theme state in `settings.toml` or change it from the in-app theme menus.
+**Runtime theme** (not hand-edited in `~/.stkrc`) is stored under **`~/.local/share/sticker0/settings.toml`** in a `[theme]` section:
+
+- **`background` / `indicator`** — current board theme (from **Board theme** on the board menu).
+- **`border` / `text` / `area`** — default sticker **colors** for the next new sticker after you pick **Change Color**.
+- **`line`** — default **border line style** for the next new sticker after you pick **Change Border** (one of `solid`, `heavy`, `round`, `double`, `ascii`, `inner`, `outer`, `dashed` — Textual border types).
+
+Each sticker’s own color preset and border style are also stored in that sticker’s JSON file (`~/.local/share/sticker0/<id>.json`).
+
+A `[theme]` block in `~/.stkrc`, if present, is **ignored** — keep theme state in `settings.toml` or change it from the in-app menus.
 
 Example `~/.stkrc` with several custom presets (add your own `[presets.sticker.Name]` / `[presets.board.Name]` tables); put **`[defaults]`** at the bottom:
 
@@ -172,3 +181,21 @@ indicator = "#839496"
 width = 30
 height = 10
 ```
+
+---
+
+## Runtime theme (`settings.toml`)
+
+The app manages **`~/.local/share/sticker0/settings.toml`** for you. Example `[theme]` block (values reflect your last choices in the UI):
+
+```toml
+[theme]
+background = "#1e1e22"
+indicator = "#d4d4d8"
+border = "#d4d4d8"
+text = "#d4d4d8"
+area = "#2a2a2e"
+line = "solid"
+```
+
+`line` applies to the **outline** drawn around each sticker (all four edges use the same style). It does not replace the color preset fields above; those control sticker fill and text colors.
