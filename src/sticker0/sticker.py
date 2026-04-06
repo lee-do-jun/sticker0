@@ -5,6 +5,18 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
+BORDER_STYLES: list[str] = [
+    "solid",
+    "heavy",
+    "round",
+    "double",
+    "ascii",
+    "inner",
+    "outer",
+    "dashed",
+]
+DEFAULT_BORDER_LINE = "solid"
+
 
 @dataclass
 class StickerColors:
@@ -31,6 +43,7 @@ class Sticker:
     title: str = ""
     content: str = ""
     colors: StickerColors = field(default_factory=StickerColors)
+    line: str = DEFAULT_BORDER_LINE
     minimized: bool = False
     position: StickerPosition = field(default_factory=StickerPosition)
     size: StickerSize = field(default_factory=StickerSize)
@@ -51,6 +64,7 @@ class Sticker:
                 "text": self.colors.text,
                 "area": self.colors.area,
             },
+            "line": self.line,
             "minimized": self.minimized,
             "position": {"x": self.position.x, "y": self.position.y},
             "size": {"width": self.size.width, "height": self.size.height},
@@ -76,6 +90,7 @@ class Sticker:
             title=data.get("title", ""),
             content=data.get("content", ""),
             colors=colors,
+            line=data.get("line", DEFAULT_BORDER_LINE),
             minimized=data.get("minimized", False),
             position=StickerPosition(**data.get("position", {})),
             size=StickerSize(**data.get("size", {})),

@@ -79,3 +79,45 @@ def test_sticker_touch_updates_timestamp():
     time.sleep(0.01)
     s.touch()
     assert s.updated_at > before
+
+
+def test_sticker_line_default():
+    from sticker0.sticker import DEFAULT_BORDER_LINE
+    s = Sticker()
+    assert s.line == DEFAULT_BORDER_LINE
+    assert s.line == "solid"
+
+
+def test_sticker_line_roundtrip():
+    s = Sticker(line="heavy")
+    d = s.to_dict()
+    assert d["line"] == "heavy"
+    s2 = Sticker.from_dict(d)
+    assert s2.line == "heavy"
+
+
+def test_sticker_line_migration_from_old_json():
+    """기존 JSON에 line 필드 없으면 DEFAULT_BORDER_LINE 적용."""
+    old_data = {
+        "id": "test-id",
+        "title": "Old",
+        "content": "Hello",
+        "colors": {"border": "white", "text": "white", "area": "transparent"},
+        "position": {"x": 0, "y": 0},
+        "size": {"width": 30, "height": 10},
+    }
+    s = Sticker.from_dict(old_data)
+    assert s.line == "solid"
+
+
+def test_border_styles_constant():
+    from sticker0.sticker import BORDER_STYLES
+    assert "solid" in BORDER_STYLES
+    assert "heavy" in BORDER_STYLES
+    assert "round" in BORDER_STYLES
+    assert "double" in BORDER_STYLES
+    assert "ascii" in BORDER_STYLES
+    assert "inner" in BORDER_STYLES
+    assert "outer" in BORDER_STYLES
+    assert "dashed" in BORDER_STYLES
+    assert len(BORDER_STYLES) == 8
