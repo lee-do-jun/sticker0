@@ -68,16 +68,10 @@ class DefaultsConfig:
 
 
 @dataclass
-class KeybindingsConfig:
-    new: str = "n"
-
-
-@dataclass
 class AppConfig:
     board_theme: BoardTheme = field(default_factory=BoardTheme)
     border: BorderConfig = field(default_factory=BorderConfig)
     defaults: DefaultsConfig = field(default_factory=DefaultsConfig)
-    keybindings: KeybindingsConfig = field(default_factory=KeybindingsConfig)
     sticker_presets: dict[str, StickerPreset] = field(default_factory=dict)
     board_presets: dict[str, BoardThemePreset] = field(default_factory=dict)
 
@@ -106,9 +100,6 @@ class AppConfig:
             config.defaults.width = d.get("width", 30)
             config.defaults.height = d.get("height", 10)
             config.defaults.preset = d.get("preset", "Graphite")
-        # Keybindings
-        if (kb := data.get("keybindings")) is not None:
-            config.keybindings.new = kb.get("new", "n")
         # Custom presets
         presets_data = data.get("presets", {})
         if (sp := presets_data.get("sticker")) is not None:

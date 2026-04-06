@@ -27,7 +27,7 @@
 
 **DefaultsConfig**: width, height, **preset** (새 스티커에 쓸 기본 스티커 프리셋 이름; 기본 `"Graphite"`)
 
-**AppConfig**: `board_theme`, `border`, `defaults`, `keybindings`, `sticker_presets`, `board_presets` (TOML `[presets.sticker.*]` / `[presets.board.*]`에서 로드)
+**AppConfig**: `board_theme`, `border`, `defaults`, `sticker_presets`, `board_presets` (TOML `[presets.sticker.*]` / `[presets.board.*]`에서 로드)
 
 **~/.stkrc 예시**:
 ```toml
@@ -69,8 +69,6 @@ indicator = "#839496"
 class Sticker0App(App):
     # Screen CSS: layers: base stickers menu
     # self.config = AppConfig.load()
-    # 키바인딩: n=새 스티커 (종료·삭제는 각 메뉴)
-    # Enter: StickerWidget.on_key → 편집 포커스
 ```
 
 config 접근: 어디서든 `self.app.config`

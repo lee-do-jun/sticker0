@@ -193,17 +193,6 @@ async def test_context_menu_delete_removes_sticker(tmp_storage):
 
 
 @pytest.mark.asyncio
-async def test_press_n_creates_sticker(tmp_storage):
-    from sticker0.widgets.sticker_widget import StickerWidget
-    app = Sticker0App(storage=tmp_storage)
-    async with app.run_test(size=(120, 40)) as pilot:
-        await pilot.press("n")
-        await pilot.pause(0.1)
-        assert len(app.query(StickerWidget)) == 1
-        assert len(tmp_storage.load_all()) == 1
-
-
-@pytest.mark.asyncio
 async def test_preset_change_via_context_menu(tmp_storage):
     """우클릭 → 프리셋 변경 → Banana 선택 → 색상 변경 확인."""
     from sticker0.widgets.sticker_widget import StickerWidget
@@ -417,12 +406,17 @@ async def test_popup_menus_close_on_left_click_outside(tmp_storage):
 @pytest.mark.asyncio
 async def test_new_sticker_uses_theme_default_colors(tmp_storage):
     """새 스티커 색은 로드된 config.board_theme 스티커 기본값과 일치."""
+    from sticker0.widgets.board_menu import BoardMenu
     from sticker0.widgets.sticker_widget import StickerWidget
 
     app = Sticker0App(storage=tmp_storage)
     bt = app.config.board_theme
     async with app.run_test(size=(120, 40)) as pilot:
-        await pilot.press("n")
+        board = app.query_one("StickerBoard")
+        await pilot.click(board, button=3, offset=(60, 20))
+        await pilot.pause(0.1)
+        menu = app.query_one(BoardMenu)
+        await pilot.click(menu.query_one("#board-create"))
         await pilot.pause(0.1)
         widget = app.query_one(StickerWidget)
         assert widget.sticker.colors.border == bt.sticker_border

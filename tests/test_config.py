@@ -20,7 +20,6 @@ def test_defaults_when_no_file(tmp_path):
     assert config.defaults.width == 30
     assert config.defaults.height == 10
     assert config.defaults.preset == "Graphite"
-    assert config.keybindings.new == "n"
 
 
 def test_load_board_theme_from_toml(tmp_path):
@@ -133,7 +132,9 @@ new = "a"
     reloaded = AppConfig.load(path=rc)
     assert reloaded.board_theme.background == "black"
     assert reloaded.border.top == "heavy"
-    assert reloaded.keybindings.new == "a"
+    text = rc.read_text(encoding="utf-8")
+    assert "[keybindings]" in text
+    assert 'new = "a"' in text
 
 
 def test_save_board_theme_atomic_write(tmp_path):
