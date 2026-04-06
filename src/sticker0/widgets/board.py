@@ -2,7 +2,7 @@
 from __future__ import annotations
 from textual.widget import Widget
 from textual.app import ComposeResult
-from textual.events import MouseUp, Resize
+from textual.events import MouseEvent, MouseUp, Resize
 from sticker0.config import AppConfig, BoardTheme
 from sticker0.sticker import Sticker, StickerColors, StickerSize
 from sticker0.presets import STICKER_PRESETS
@@ -102,7 +102,27 @@ class StickerBoard(Widget):
         for w in self.query(ThemePicker):
             w.remove()
 
+    @staticmethod
+    def _event_target_is_popup_layer(event: MouseEvent) -> bool:
+        """버블된 Mouse 이벤트의 원래 타깃이 메뉴/피커 위젯(또는 그 자식)인지."""
+        from sticker0.widgets.context_menu import ContextMenu
+        from sticker0.widgets.board_menu import BoardMenu
+        from sticker0.widgets.preset_picker import PresetPicker
+        from sticker0.widgets.theme_picker import ThemePicker
+
+        popup_types = (ContextMenu, BoardMenu, PresetPicker, ThemePicker)
+        w: Widget | None = event.widget
+        while w is not None:
+            if isinstance(w, popup_types):
+                return True
+            w = w.parent
+        return False
+
     def on_mouse_up(self, event: MouseUp) -> None:
+        if event.button == 1:
+            if not self._event_target_is_popup_layer(event):
+                self.close_all_menus()
+            return
         if event.button == 3:
             self.close_all_menus()
             from sticker0.widgets.board_menu import BoardMenu

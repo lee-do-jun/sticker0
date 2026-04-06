@@ -138,6 +138,12 @@ class StickerWidget(Widget):
                 parent.move_child(self, after=children[-1])
 
     def on_mouse_down(self, event: MouseDown) -> None:
+        if event.button == 1:
+            try:
+                board = self.app.query_one("StickerBoard")
+                board.close_all_menus()
+            except NoMatches:
+                pass
         self._move_to_front()
         mode = self._classify_border(event.x, event.y)
 

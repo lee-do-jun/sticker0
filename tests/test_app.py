@@ -182,7 +182,7 @@ async def test_press_n_creates_sticker(tmp_storage):
 
 @pytest.mark.asyncio
 async def test_preset_change_via_context_menu(tmp_storage):
-    """우클릭 → 프리셋 변경 → Ink 선택 → 색상 변경 확인."""
+    """우클릭 → 프리셋 변경 → Banana 선택 → 색상 변경 확인."""
     from sticker0.widgets.sticker_widget import StickerWidget
     from sticker0.widgets.preset_picker import PresetPicker
     s = Sticker(title="Preset test")
@@ -198,12 +198,12 @@ async def test_preset_change_via_context_menu(tmp_storage):
         await pilot.pause(0.1)
         assert len(app.query(PresetPicker)) == 1
         picker = app.query_one(PresetPicker)
-        await pilot.click(picker.query_one("#preset-Ink"))
+        await pilot.click(picker.query_one("#preset-Banana"))
         await pilot.pause(0.1)
         loaded = tmp_storage.load(s.id)
         assert loaded.colors.border == "black"
         assert loaded.colors.text == "black"
-        assert loaded.colors.area == "transparent"
+        assert loaded.colors.area == "#ffeb3b"
 
 
 @pytest.mark.asyncio
@@ -304,10 +304,10 @@ async def test_board_theme_change(tmp_storage):
         await pilot.pause(0.1)
         assert len(app.query(ThemePicker)) == 1
         picker = app.query_one(ThemePicker)
-        await pilot.click(picker.query_one("#theme-Dark-Base"))
+        await pilot.click(picker.query_one("#theme-Graphite"))
         await pilot.pause(0.1)
-        assert board.board_bg == "black"
-        assert board.indicator == "white"
+        assert board.board_bg == "#1e1e22"
+        assert board.indicator == "#d4d4d8"
 
 
 @pytest.mark.asyncio
@@ -369,6 +369,42 @@ async def test_menu_mutual_exclusion(tmp_storage):
         await pilot.pause(0.1)
         assert len(app.query(ContextMenu)) == 0
         assert len(app.query(BoardMenu)) == 1
+
+
+@pytest.mark.asyncio
+async def test_popup_menus_close_on_left_click_outside(tmp_storage):
+    """보드 빈 영역 또는 스티커 좌클릭 시 ContextMenu·BoardMenu가 닫힘."""
+    from sticker0.widgets.sticker_widget import StickerWidget
+    from sticker0.widgets.context_menu import ContextMenu
+    from sticker0.widgets.board_menu import BoardMenu
+    s = Sticker(content="test")
+    s.position.x = 0
+    s.position.y = 0
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        board = app.query_one("StickerBoard")
+        await pilot.click(widget, button=3, offset=(5, 2))
+        await pilot.pause(0.1)
+        assert len(app.query(ContextMenu)) == 1
+        await pilot.click(board, button=1, offset=(100, 30))
+        await pilot.pause(0.1)
+        assert len(app.query(ContextMenu)) == 0
+
+        await pilot.click(board, button=3, offset=(50, 30))
+        await pilot.pause(0.1)
+        assert len(app.query(BoardMenu)) == 1
+        await pilot.click(board, button=1, offset=(100, 30))
+        await pilot.pause(0.1)
+        assert len(app.query(BoardMenu)) == 0
+
+        await pilot.click(board, button=3, offset=(50, 30))
+        await pilot.pause(0.1)
+        assert len(app.query(BoardMenu)) == 1
+        await pilot.click(widget, button=1, offset=(15, 5))
+        await pilot.pause(0.1)
+        assert len(app.query(BoardMenu)) == 0
 
 
 @pytest.mark.asyncio

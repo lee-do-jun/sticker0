@@ -63,7 +63,7 @@ class ContextMenu(Widget):
         else:
             yield Button("Minimize", id="menu-minimize")
         yield Button("Color", id="menu-preset")
-        yield Button("Delete", id="menu-delete", variant="error")
+        yield Button("Delete", id="menu-delete")
         yield Button("Close", id="menu-close")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

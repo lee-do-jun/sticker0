@@ -1,7 +1,5 @@
 # tests/test_presets.py
 from sticker0.presets import (
-    StickerPreset,
-    BoardThemePreset,
     STICKER_PRESETS,
     BOARD_PRESETS,
     DEFAULT_STICKER_PRESET,
@@ -12,24 +10,24 @@ from sticker0.presets import (
 
 
 def test_builtin_sticker_presets_exist():
-    assert "Snow" in STICKER_PRESETS
-    assert "Ink" in STICKER_PRESETS
+    assert "Graphite" in STICKER_PRESETS
+    assert "Mist" in STICKER_PRESETS
     assert "Sky" in STICKER_PRESETS
     assert "Banana" in STICKER_PRESETS
 
 
-def test_snow_preset_values():
-    snow = STICKER_PRESETS["Snow"]
-    assert snow.border == "white"
-    assert snow.text == "white"
-    assert snow.area == "transparent"
+def test_graphite_preset_values():
+    g = STICKER_PRESETS["Graphite"]
+    assert g.border == "#d4d4d8"
+    assert g.text == "#d4d4d8"
+    assert g.area == "#2a2a2e"
 
 
-def test_ink_preset_values():
-    ink = STICKER_PRESETS["Ink"]
-    assert ink.border == "black"
-    assert ink.text == "black"
-    assert ink.area == "transparent"
+def test_mist_preset_values():
+    m = STICKER_PRESETS["Mist"]
+    assert m.border == "#2f2f2f"
+    assert m.text == "#2f2f2f"
+    assert m.area == "#f2f2f0"
 
 
 def test_sky_preset_values():
@@ -47,30 +45,30 @@ def test_banana_preset_values():
 
 
 def test_builtin_board_presets_exist():
-    assert "Dark Base" in BOARD_PRESETS
-    assert "Light Base" in BOARD_PRESETS
-    assert "Dark Mode" in BOARD_PRESETS
-    assert "White Mode" in BOARD_PRESETS
+    assert "Graphite" in BOARD_PRESETS
+    assert "Ivory" in BOARD_PRESETS
+    assert "Slate Blue" in BOARD_PRESETS
+    assert "Amber Night" in BOARD_PRESETS
 
 
-def test_dark_mode_preset_values():
-    dm = BOARD_PRESETS["Dark Mode"]
-    assert dm.background == "transparent"
-    assert dm.indicator == "white"
+def test_graphite_board_preset_values():
+    g = BOARD_PRESETS["Graphite"]
+    assert g.background == "#1e1e22"
+    assert g.indicator == "#d4d4d8"
 
 
 def test_default_sticker_preset():
-    assert DEFAULT_STICKER_PRESET == "Snow"
+    assert DEFAULT_STICKER_PRESET == "Graphite"
 
 
 def test_default_board_preset():
-    assert DEFAULT_BOARD_PRESET == "Dark Mode"
+    assert DEFAULT_BOARD_PRESET == "Graphite"
 
 
 def test_get_sticker_preset_found():
-    preset = get_sticker_preset("Snow")
+    preset = get_sticker_preset("Graphite")
     assert preset is not None
-    assert preset.name == "Snow"
+    assert preset.name == "Graphite"
 
 
 def test_get_sticker_preset_not_found():
@@ -78,6 +76,6 @@ def test_get_sticker_preset_not_found():
 
 
 def test_get_board_preset_found():
-    preset = get_board_preset("Dark Base")
+    preset = get_board_preset("Ivory")
     assert preset is not None
-    assert preset.name == "Dark Base"
+    assert preset.name == "Ivory"
