@@ -1,7 +1,6 @@
 # src/sticker0/config.py
 from __future__ import annotations
 import os
-import re
 import tempfile
 import tomllib
 from dataclasses import dataclass, field
@@ -9,6 +8,32 @@ from pathlib import Path
 from sticker0.presets import StickerPreset, BoardThemePreset
 
 CONFIG_PATH = Path.home() / ".stkrc"
+
+
+def _replace_toml_section(content: str, section: str, new_block: str) -> str:
+    """content에서 [section] 블록을 new_block으로 교체. 없으면 끝에 추가."""
+    lines = content.split("\n")
+    result: list[str] = []
+    in_target = False
+    found = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped == f"[{section}]":
+            in_target = True
+            found = True
+            # 새 블록 삽입 (trailing newline 제거 후)
+            result.extend(new_block.rstrip("\n").split("\n"))
+            continue
+        if in_target and stripped.startswith("[") and not stripped.startswith(f"[{section}]"):
+            in_target = False
+        if not in_target:
+            result.append(line)
+    if not found:
+        # 파일 끝에 추가
+        if result and result[-1] != "":
+            result.append("")
+        result.extend(new_block.rstrip("\n").split("\n"))
+    return "\n".join(result)
 
 
 @dataclass
@@ -92,25 +117,19 @@ class AppConfig:
 
     def save_board_theme(self, path: Path = CONFIG_PATH) -> None:
         """보드 테마를 .stkrc [theme] 섹션에 atomic write."""
-        theme_lines = (
+        theme_block = (
             "[theme]\n"
             f'background = "{self.board_theme.background}"\n'
             f'indicator = "{self.board_theme.indicator}"\n'
         )
         if path.exists():
-            content = path.read_text(encoding="utf-8")
-            # [theme] 섹션 찾기 및 교체
-            pattern = r"\[theme\]\n(?:[^\[]*?)(?=\n\[|\Z)"
-            if re.search(pattern, content):
-                content = re.sub(pattern, theme_lines.rstrip(), content)
-            else:
-                content = content.rstrip() + "\n\n" + theme_lines
+            content = _replace_toml_section(
+                path.read_text(encoding="utf-8"), "theme", theme_block
+            )
         else:
-            content = theme_lines
+            content = theme_block
         # Atomic write
-        fd, tmp_path_str = tempfile.mkstemp(
-            dir=path.parent, suffix=".tmp"
-        )
+        fd, tmp_path_str = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(content)
