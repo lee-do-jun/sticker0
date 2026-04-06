@@ -1,6 +1,6 @@
 # sticker0
 
-[![Version](https://img.shields.io/badge/version-0.3.0-yellow.svg)](https://github.com/dojun/sticker0)
+[![Version](https://img.shields.io/badge/version-0.4.0-yellow.svg)](https://github.com/dojun/sticker0)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
@@ -10,14 +10,14 @@ A terminal sticky notes TUI app built with Python + [Textual](https://textual.te
 
 ## Features
 
-- **Drag & resize** stickers freely on the board
-- **Text editing** with built-in TextArea
-- **Color presets** — Snow, Ink, Sky, Banana (and custom)
-- **Board themes** — Dark Mode, Dark Base, Light Base, White Mode (and custom)
-- **Minimize / restore** stickers (double-click header or right-click menu)
-- **Screen clamping** — stickers stay on screen
-- **Auto-save** — changes persist to `~/.local/share/sticker0/`
-- **Config file** — customize defaults via `~/.stkrc`
+- **Drag & resize** stickers on the board (wide handles, bottom-corner diagonal resize)
+- **Text editing** with a built-in `TextArea` (cursor/scroll styling matches each sticker)
+- **Sticker color presets** — Graphite, Mist, Ocean, Amber, Forest, Crimson, Violet, Sky, Banana (plus custom `[presets.sticker.*]`)
+- **Board themes** — Graphite, Ivory, Slate Blue, Dust Rose, Forest, Amber Night (plus custom `[presets.board.*]`)
+- **Minimize / restore** — double-click the top border or use the context menu
+- **Screen clamping** — stickers stay within the terminal
+- **Auto-save** — each sticker stored as JSON under `~/.local/share/sticker0/`
+- **Config** — `~/.stkrc` for board theme, sticker default colors, border style, size defaults, and keybindings
 
 ---
 
@@ -43,44 +43,38 @@ stk
 
 ---
 
-## Keyboard Shortcuts
+## Keyboard shortcuts
 
-| Key | Action |
-|-----|--------|
-| `n` | New sticker |
+| Key            | Action                 |
+| -------------- | ---------------------- |
+| `n`            | New sticker            |
 | `d` / `Delete` | Delete focused sticker |
-| `q` | Quit |
-
----
-
-## Mouse Controls
-
-| Action | Result |
-|--------|--------|
-| Drag top border | Move sticker |
-| Drag left/right border | Resize width |
-| Drag bottom border | Resize height |
-| Double-click top border | Minimize / restore |
-| Right-click sticker | Context menu |
-| Right-click empty area | Board menu |
+| `q`            | Quit                   |
 
 ---
 
 ## Configuration (`~/.stkrc`)
 
+The **`[theme]`** section holds both the **board** look and the **default colors for newly created stickers**:
+
+- `background` / `indicator` — board background and UI accent (menus, borders).
+- `border` / `text` / `area` — default `StickerColors` for **new** stickers. These update when you pick a sticker preset from the menu (so the next “Create” matches your last choice). Choosing a **board** theme from the menu updates `background` and `indicator` only and keeps the three sticker colors unless you change them via a sticker preset.
+
 ```toml
 [theme]
-background = "transparent"   # Board background color
-indicator = "white"          # Menu text/border color
+background = "transparent"
+indicator = "white"
+border = "#d4d4d8"    # new sticker — border color
+text = "#d4d4d8"      # new sticker — text color
+area = "#2a2a2e"      # new sticker — area color
 
 [border]
-top = "double"    # single | double | heavy | simple
-sides = "single"
+top = "heavy"         # single | double | heavy | simple
+sides = "heavy"
 
 [defaults]
 width = 30
 height = 10
-preset = "Snow"
 
 [keybindings]
 new = "n"
@@ -97,16 +91,4 @@ area = "#330000"
 [presets.board.Solarized]
 background = "#002b36"
 indicator = "#839496"
-```
-
----
-
-## Development
-
-```bash
-git clone https://github.com/dojun/sticker0
-cd sticker0
-uv sync --dev
-uv run stk       # Run app
-uv run pytest    # Run tests
 ```

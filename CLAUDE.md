@@ -1,6 +1,6 @@
 # sticker0 CLAUDE.md
 
-터미널 스티키 노트 TUI 앱 (Python + Textual >= 0.80). `stk` CLI로 실행, v0.3.0.
+터미널 스티키 노트 TUI 앱 (Python + Textual >= 0.80). `stk` CLI로 실행, v0.4.0.
 스티커를 자유롭게 드래그·리사이즈·최소화하며 TOML config + JSON 파일로 영속화.
 
 ## 아키텍처
@@ -21,7 +21,7 @@ Screen layers: `base stickers menu` / Board layers: `stickers menu`
 
 ```
 src/sticker0/
-  __init__.py       # __version__ = "0.3.0"
+  __init__.py       # __version__ = "0.4.0"
   main.py           # CLI 진입점 (stk)
   app.py            # Sticker0App: 키바인딩, config 보유
   sticker.py        # Sticker dataclass, StickerColors, StickerPosition, StickerSize
