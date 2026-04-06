@@ -13,6 +13,29 @@ from sticker0.widgets.popup_geometry import (
     apply_popup_board_theme,
 )
 
+# 터미널에서 스타일을 한눈에 구분하기 위한 미리보기 (박스드로잉·블록 문자)
+_BORDER_PICKER_PREVIEW: dict[str, str] = {
+    "solid": "┌──┐",
+    "heavy": "┏━━┓",
+    "round": "╭──╮",
+    "double": "╔══╗",
+    "ascii": "+--+",
+    "inner": "▗▄▄▖",
+    "outer": "▛▀▀▜",
+    "dashed": "┏╍╍┓",
+}
+
+
+def _border_picker_label(style_name: str) -> Text:
+    """한 줄: `╭──╮  Round` 형식 — 미리보기 + 두 칸 공백 + 굵은 이름."""
+    preview = _BORDER_PICKER_PREVIEW.get(style_name, "────")
+    name = style_name.capitalize()
+    t = Text()
+    t.append(preview)
+    t.append("  ")
+    t.append(name, style=Style(bold=True))
+    return t
+
 
 class BorderPicker(Widget):
     """스티커 border 스타일 선택 팝업."""
@@ -20,7 +43,7 @@ class BorderPicker(Widget):
     DEFAULT_CSS = """
     BorderPicker {
         position: absolute;
-        width: 22;
+        width: 20;
         height: auto;
         background: transparent;
         layer: menu;
@@ -31,6 +54,8 @@ class BorderPicker(Widget):
         min-height: 1;
         border: none;
         background: transparent;
+        text-align: left;
+        content-align: left middle;
     }
     """
 
@@ -68,7 +93,7 @@ class BorderPicker(Widget):
     def compose(self) -> ComposeResult:
         mi, mb = self._indicator, self._board_background
         for style_name in BORDER_STYLES:
-            label = Text(style_name.capitalize(), style=Style(bold=True))
+            label = _border_picker_label(style_name)
             yield PrimaryOnlyButton(
                 label,
                 id=f"border-{style_name}",
