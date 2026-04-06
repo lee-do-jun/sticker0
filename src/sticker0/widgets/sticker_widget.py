@@ -86,6 +86,8 @@ class StickerWidget(Widget):
 
     def on_mount(self) -> None:
         self._apply_sticker_styles()
+        if self.sticker.minimized:
+            self._sync_minimized_ui(True)
 
     def _get_board_background(self) -> str:
         """보드 테마의 background 색상 조회."""
@@ -166,6 +168,8 @@ class StickerWidget(Widget):
             editor.styles.scrollbar_color = thumb
             editor.styles.scrollbar_color_hover = thumb
             editor.styles.scrollbar_color_active = "#888"
+            if self.sticker.minimized:
+                editor.display = False
         except NoMatches:
             pass
 
@@ -390,18 +394,19 @@ class StickerWidget(Widget):
         """최소화/복원 토글."""
         self._set_minimized(not self.sticker.minimized)
 
-    def _set_minimized(self, minimized: bool) -> None:
+    def _sync_minimized_ui(self, minimized: bool) -> None:
+        """최소화 상태에 맞춰 높이·에디터 표시·요약 라벨만 조정한다(저장 없음)."""
         from textual.widgets import Static
-        self.sticker.minimized = minimized
+
         if minimized:
             self.styles.height = self.MINIMIZED_HEIGHT
             try:
-                editor = self._get_editor()
-                editor.display = False
+                self._get_editor().display = False
             except NoMatches:
                 pass
-            # 첫 줄 텍스트 + ellipsis 표시
-            first_line = self.sticker.content.split("\n")[0] if self.sticker.content else ""
+            first_line = (
+                self.sticker.content.split("\n")[0] if self.sticker.content else ""
+            )
             max_w = max(1, self.sticker.size.width - 4)
             if len(first_line) > max_w:
                 first_line = first_line[: max_w - 3] + "..."
@@ -413,14 +418,17 @@ class StickerWidget(Widget):
         else:
             self.styles.height = self.sticker.size.height
             try:
-                editor = self._get_editor()
-                editor.display = True
+                self._get_editor().display = True
             except NoMatches:
                 pass
             try:
                 self.query_one("#minimized-label").remove()
             except NoMatches:
                 pass
+
+    def _set_minimized(self, minimized: bool) -> None:
+        self.sticker.minimized = minimized
+        self._sync_minimized_ui(minimized)
         try:
             board = self.app.query_one("StickerBoard")
             board.save_sticker(self.sticker)
