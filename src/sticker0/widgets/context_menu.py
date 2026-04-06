@@ -34,10 +34,14 @@ class ContextMenu(Widget):
     """
 
     class MenuAction(Message):
-        def __init__(self, action: str, sticker_id: str) -> None:
+        def __init__(
+            self, action: str, sticker_id: str, x: int = 0, y: int = 0
+        ) -> None:
             super().__init__()
             self.action = action
             self.sticker_id = sticker_id
+            self.x = x
+            self.y = y
 
     def __init__(
         self,
@@ -66,13 +70,9 @@ class ContextMenu(Widget):
             yield PrimaryOnlyButton("Minimize", id="menu-minimize")
         yield PrimaryOnlyButton("Color", id="menu-preset")
         yield PrimaryOnlyButton("Delete", id="menu-delete")
-        yield PrimaryOnlyButton("Close", id="menu-close")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
-        if event.button.id == "menu-close":
-            self.remove()
-            return
         action_map = {
             "menu-delete": "delete",
             "menu-preset": "preset",
@@ -81,5 +81,9 @@ class ContextMenu(Widget):
         }
         action = action_map.get(event.button.id or "", "")
         if action:
-            self.post_message(self.MenuAction(action, self.sticker_id))
+            self.post_message(
+                self.MenuAction(
+                    action, self.sticker_id, x=self._menu_x, y=self._menu_y
+                )
+            )
             self.remove()

@@ -151,8 +151,8 @@ class StickerBoard(Widget):
             self.close_all_menus()
             picker = PresetPicker(
                 sticker_id=message.sticker_id,
-                x=22,
-                y=3,
+                x=message.x,
+                y=message.y,
                 indicator=self.indicator,
                 custom_presets=self.config.sticker_presets,
             )
