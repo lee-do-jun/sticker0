@@ -125,11 +125,11 @@ Create stickers from the board right-click menu (**Create**), or **New from clip
 
 ## Configuration (`~/.stkrc`)
 
-**`~/.stkrc`** is for human-edited options only: custom **sticker** and **board** presets, **border** line styles, and **defaults** (new-sticker size and default preset name). The app does not write this file.
+**`~/.stkrc`** is for human-edited options only: custom **sticker** and **board** presets, and **defaults** (new-sticker size and default preset name). The app does not write this file.
 
 **Runtime colors** (current board background/accent and colors used for newly created stickers after you pick presets in the UI) are stored under **`~/.local/share/sticker0/settings.toml`** in a `[theme]` section. A `[theme]` block in `~/.stkrc`, if present, is **ignored** — keep theme state in `settings.toml` or change it from the in-app theme menus.
 
-Example `~/.stkrc` with several custom presets (add your own `[presets.sticker.Name]` / `[presets.board.Name]` tables); put **`[border]`** and **`[defaults]`** at the bottom:
+Example `~/.stkrc` with several custom presets (add your own `[presets.sticker.Name]` / `[presets.board.Name]` tables); put **`[defaults]`** at the bottom:
 
 ```toml
 [presets.sticker.Sakura]
@@ -167,10 +167,6 @@ indicator = "#38bdf8"
 [presets.board.Solarized]
 background = "#002b36"
 indicator = "#839496"
-
-[border]
-top = "heavy"         # single | double | heavy | simple
-sides = "heavy"
 
 [defaults]
 width = 30
