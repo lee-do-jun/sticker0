@@ -1,0 +1,7 @@
+[theme]
+background = "#2a2f45"
+indicator = "#cbd5ff"
+border = "inherit"
+text = "inherit"
+area = "transparent"
+line = "heavy"
