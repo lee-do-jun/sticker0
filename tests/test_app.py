@@ -406,6 +406,21 @@ async def test_minimize_via_context_menu(tmp_storage):
 
 
 @pytest.mark.asyncio
+async def test_minimized_sticker_load_hides_editor(tmp_storage):
+    """저장된 최소화 스티커 기동 시 TextArea는 숨기고 요약 라벨만 쓴다(스크롤바 유령 방지)."""
+    from sticker0.widgets.sticker_widget import StickerWidget
+
+    s = Sticker(content="line1\nline2\nline3", minimized=True)
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)):
+        widget = app.query_one(StickerWidget)
+        editor = widget.query_one(TextArea)
+        assert editor.display is False
+        widget.query_one("#minimized-label")
+
+
+@pytest.mark.asyncio
 async def test_restore_via_context_menu(tmp_storage):
     """최소화 상태에서 우클릭 → 복원."""
     from sticker0.widgets.sticker_widget import StickerWidget
