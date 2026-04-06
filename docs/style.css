@@ -207,8 +207,17 @@ img { max-width: 100%; height: auto; }
   color: var(--bg);
 }
 
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .hero-cta {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 28px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -221,6 +230,14 @@ img { max-width: 100%; height: auto; }
   border-color: var(--accent);
   background: var(--accent-glow);
   text-decoration: none;
+}
+
+.hero-cta-secondary {
+  color: var(--text-secondary);
+}
+
+.btn-icon {
+  flex-shrink: 0;
 }
 
 /* === Sections (shared) === */

@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-A terminal sticky notes TUI app built with Python + [Textual](https://textual.textualize.io/).
+A terminal sticky notes TUI app. Pairs naturally with tmux and terminal-based workflows like Claude Code.
 
 ![sticker0 running in the terminal](assets/screenshot-1.png)
 
