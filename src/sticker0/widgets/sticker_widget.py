@@ -1,8 +1,12 @@
 # src/sticker0/widgets/sticker_widget.py
 from __future__ import annotations
 import time
+from dataclasses import replace
+
+from rich.style import Style
 from textual.widget import Widget
 from textual.widgets import TextArea
+from textual.widgets.text_area import TextAreaTheme
 from textual.app import ComposeResult
 from textual.events import MouseDown, MouseMove, MouseUp
 from textual.css.query import NoMatches
@@ -98,9 +102,20 @@ class StickerWidget(Widget):
         else:
             self.styles.height = self.sticker.size.height
 
-        # TextArea: 기본 $surface/$foreground가 부모를 가리지 않으므로 편집 영역에 직접 반영
+        # TextArea: 기본 $surface/$foreground가 부모를 가리지 않으므로 편집 영역에 직접 반영.
+        # 커서(.text-area--cursor)는 본문 color와 별도라서 css 테마 복제 + cursor_style으로 맞춘다.
+        # theme 설정 시 TextArea가 color/background를 초기화하므로 테마 적용 뒤에 스타일을 다시 준다.
         try:
             editor = self._get_editor()
+            base_theme = TextAreaTheme.get_builtin_theme("css")
+            if base_theme is not None:
+                theme_name = f"sticker-ta-{self.sticker.id}"
+                # 일반 글자와 동일한 (text + area) 조합은 커서 칸이 안 보임. 역전시켜 텍스트 색이 블록에 쓰이게 함.
+                cursor_style = Style(color=area_color, bgcolor=colors.text)
+                editor.register_theme(
+                    replace(base_theme, name=theme_name, cursor_style=cursor_style)
+                )
+                editor.theme = theme_name
             editor.styles.background = area_color
             editor.styles.color = colors.text
             editor.styles.scrollbar_color = colors.text
