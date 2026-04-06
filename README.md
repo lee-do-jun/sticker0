@@ -1,6 +1,6 @@
 # sticker0
 
-[![Version](https://img.shields.io/badge/version-0.4.0-yellow.svg)](https://github.com/dojun/sticker0)
+[![Version](https://img.shields.io/badge/version-0.5.0-yellow.svg)](https://github.com/dojun/sticker0)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
@@ -12,14 +12,16 @@ A terminal sticky notes TUI app built with Python + [Textual](https://textual.te
 
 ## Features
 
+- **Mouse-first UX** — create, delete, quit, themes, and clipboard actions from context menus (no global keyboard shortcuts)
 - **Drag & resize** stickers on the board (wide handles, bottom-corner diagonal resize)
 - **Text editing** with a built-in `TextArea` (cursor/scroll styling matches each sticker)
-- **Sticker color presets** — Graphite, Mist, Ocean, Amber, Forest, Crimson, Violet, Sky, Banana (plus custom `[presets.sticker.*]`)
-- **Board themes** — Graphite, Ivory, Slate Blue, Dust Rose, Forest, Amber Night (plus custom `[presets.board.*]`)
+- **Clipboard** — **Copy** / **Paste** on the sticker menu; **New from clipboard** on the board menu (OS clipboard via `pyperclip`)
+- **Sticker color presets** — Clear, Graphite, Mist, Ocean, Amber, Forest, Crimson, Violet, Sky, Banana (plus custom `[presets.sticker.*]` in `~/.stkrc`)
+- **Board themes** — Graphite, Ivory, Slate, Dust, Forest, Amber (plus custom `[presets.board.*]` in `~/.stkrc`)
 - **Minimize / restore** — double-click the top border or use the context menu
 - **Screen clamping** — stickers stay within the terminal
 - **Auto-save** — each sticker stored as JSON under `~/.local/share/sticker0/`
-- **Config** — `~/.stkrc` for board theme, sticker default colors, border style, and size defaults
+- **Config** — `~/.stkrc` for border style, size defaults, and custom presets; active board/sticker colors live in `~/.local/share/sticker0/settings.toml` (updated when you pick themes from the menus)
 
 ---
 
@@ -102,6 +104,13 @@ For more options (Homebrew, WinGet, PyPI, etc.), see the official uv installatio
 
 ---
 
+## What’s new in 0.5.0
+
+- **No global shortcuts** — keyboard shortcuts for app-level actions were removed entirely; interaction stays mouse- and menu-driven.
+- **Clipboard workflow** — copy sticker body to the OS clipboard, paste clipboard text into the focused sticker, or create a new sticker prefilled from the clipboard (**New from clipboard** on the board menu).
+
+---
+
 ## Usage
 
 ```bash
@@ -110,24 +119,54 @@ stk
 
 ---
 
-Create stickers from the board right-click menu (**Create**). Delete stickers from the sticker context menu (**Delete**). Quit from the board right-click menu (**Quit**).
+Create stickers from the board right-click menu (**Create**), or **New from clipboard** when the OS clipboard has text. On a sticker, use **Copy** / **Paste** in the context menu. Delete with **Delete**; quit with **Quit** on the board menu.
 
 ---
 
 ## Configuration (`~/.stkrc`)
 
-The **`[theme]`** section holds both the **board** look and the **default colors for newly created stickers**:
+**`~/.stkrc`** is for human-edited options only: custom **sticker** and **board** presets, **border** line styles, and **defaults** (new-sticker size and default preset name). The app does not write this file.
 
-- `background` / `indicator` — board background and UI accent (menus, borders).
-- `border` / `text` / `area` — default `StickerColors` for **new** stickers. These update when you pick a sticker preset from the menu (so the next “Create” matches your last choice). Choosing a **board** theme from the menu updates `background` and `indicator` only and keeps the three sticker colors unless you change them via a sticker preset.
+**Runtime colors** (current board background/accent and colors used for newly created stickers after you pick presets in the UI) are stored under **`~/.local/share/sticker0/settings.toml`** in a `[theme]` section. A `[theme]` block in `~/.stkrc`, if present, is **ignored** — keep theme state in `settings.toml` or change it from the in-app theme menus.
+
+Example `~/.stkrc` with several custom presets (add your own `[presets.sticker.Name]` / `[presets.board.Name]` tables); put **`[border]`** and **`[defaults]`** at the bottom:
 
 ```toml
-[theme]
-background = "transparent"
-indicator = "white"
-border = "#d4d4d8"    # new sticker — border color
-text = "#d4d4d8"      # new sticker — text color
-area = "#2a2a2e"      # new sticker — area color
+[presets.sticker.Sakura]
+border = "#fce7f3"
+text = "#831843"
+area = "#500724"
+
+[presets.sticker.Nordic]
+border = "#e2e8f0"
+text = "#0f172a"
+area = "#1e293b"
+
+[presets.sticker.Pistachio]
+border = "#d9f99d"
+text = "#14532d"
+area = "#166534"
+
+[presets.sticker.Twilight]
+border = "#c4b5fd"
+text = "#eef2ff"
+area = "#312e81"
+
+[presets.board.Midnight]
+background = "#0c0a09"
+indicator = "#a8a29e"
+
+[presets.board.Dawn]
+background = "#fff7ed"
+indicator = "#c2410c"
+
+[presets.board.Fjord]
+background = "#0f172a"
+indicator = "#38bdf8"
+
+[presets.board.Solarized]
+background = "#002b36"
+indicator = "#839496"
 
 [border]
 top = "heavy"         # single | double | heavy | simple
@@ -136,15 +175,5 @@ sides = "heavy"
 [defaults]
 width = 30
 height = 10
-
-# Custom sticker preset
-[presets.sticker.Fire]
-border = "#ff0000"
-text = "#ffffff"
-area = "#330000"
-
-# Custom board theme
-[presets.board.Solarized]
-background = "#002b36"
-indicator = "#839496"
+preset = "Graphite"   # built-in or custom sticker preset name
 ```
