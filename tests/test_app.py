@@ -52,31 +52,20 @@ async def test_sticker_drag_moves_position(tmp_storage):
 
 
 @pytest.mark.asyncio
-async def test_sticker_resize_from_corner(tmp_storage):
+async def test_textarea_always_present(tmp_storage):
+    """TextArea is always rendered (no separate view/edit modes)."""
     from sticker0.widgets.sticker_widget import StickerWidget
-    s = Sticker(title="Resize me")
-    s.size.width = 30
-    s.size.height = 10
+    from textual.widgets import TextArea
+    s = Sticker(content="hello")
     tmp_storage.save(s)
     app = Sticker0App(storage=tmp_storage)
     async with app.run_test(size=(120, 40)) as pilot:
-        widget = app.query_one(StickerWidget)
-        # 우하단 모서리(리사이즈 핸들)에서 드래그: 10x3 증가
-        corner_offset = (s.size.width - 1, s.size.height - 1)
-        await pilot.mouse_down(widget, offset=corner_offset)
-        # mouse_up을 corner보다 +10, +3 위치에서
-        corner_screen = (
-            widget.region.x + corner_offset[0],
-            widget.region.y + corner_offset[1],
-        )
-        await pilot.mouse_up(offset=(corner_screen[0] + 10, corner_screen[1] + 3))
-        await pilot.pause()
-        assert widget.sticker.size.width == 40
-        assert widget.sticker.size.height == 13
+        assert len(app.query(TextArea)) == 1
 
 
 @pytest.mark.asyncio
-async def test_double_click_enters_edit_mode(tmp_storage):
+async def test_single_click_focuses_textarea(tmp_storage):
+    """Single click focuses the TextArea."""
     from sticker0.widgets.sticker_widget import StickerWidget
     from textual.widgets import TextArea
     s = Sticker(title="Edit me", content="original")
@@ -84,28 +73,94 @@ async def test_double_click_enters_edit_mode(tmp_storage):
     app = Sticker0App(storage=tmp_storage)
     async with app.run_test(size=(120, 40)) as pilot:
         widget = app.query_one(StickerWidget)
-        # 더블클릭 시뮬레이션: 빠른 연속 클릭
-        await pilot.click(widget, offset=(5, 2))
         await pilot.click(widget, offset=(5, 2))
         await pilot.pause(0.1)
         assert len(app.query(TextArea)) >= 1
 
 
 @pytest.mark.asyncio
-async def test_escape_exits_edit_mode(tmp_storage):
+async def test_textarea_content_saves_on_change(tmp_storage):
+    """TextArea content changes are reflected in sticker data."""
     from sticker0.widgets.sticker_widget import StickerWidget
     from textual.widgets import TextArea
-    s = Sticker(title="Edit me", content="original")
+    s = Sticker(content="original")
     tmp_storage.save(s)
     app = Sticker0App(storage=tmp_storage)
     async with app.run_test(size=(120, 40)) as pilot:
         widget = app.query_one(StickerWidget)
         await pilot.click(widget, offset=(5, 2))
-        await pilot.click(widget, offset=(5, 2))
         await pilot.pause(0.1)
-        await pilot.press("escape")
+        await pilot.press("a", "b", "c")
         await pilot.pause(0.1)
-        assert len(app.query(TextArea)) == 0
+        assert "abc" in widget.sticker.content
+
+
+@pytest.mark.asyncio
+async def test_sticker_resize_right_border(tmp_storage):
+    """Right border drag changes width."""
+    from sticker0.widgets.sticker_widget import StickerWidget
+    s = Sticker(content="Resize me")
+    s.size.width = 30
+    s.size.height = 10
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        right_border_x = s.size.width - 1
+        mid_y = s.size.height // 2
+        await pilot.mouse_down(widget, offset=(right_border_x, mid_y))
+        right_screen_x = widget.region.x + right_border_x
+        mid_screen_y = widget.region.y + mid_y
+        await pilot.mouse_up(offset=(right_screen_x + 10, mid_screen_y))
+        await pilot.pause(0.1)
+        assert widget.sticker.size.width == 40
+
+
+@pytest.mark.asyncio
+async def test_sticker_resize_bottom_border(tmp_storage):
+    """Bottom border drag changes height."""
+    from sticker0.widgets.sticker_widget import StickerWidget
+    s = Sticker(content="Resize me")
+    s.size.width = 30
+    s.size.height = 10
+    tmp_storage.save(s)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widget = app.query_one(StickerWidget)
+        bottom_border_y = s.size.height - 1
+        mid_x = s.size.width // 2
+        await pilot.mouse_down(widget, offset=(mid_x, bottom_border_y))
+        mid_screen_x = widget.region.x + mid_x
+        bottom_screen_y = widget.region.y + bottom_border_y
+        await pilot.mouse_up(offset=(mid_screen_x, bottom_screen_y + 5))
+        await pilot.pause(0.1)
+        assert widget.sticker.size.height == 15
+
+
+@pytest.mark.asyncio
+async def test_click_brings_sticker_to_front(tmp_storage):
+    """Clicking a sticker moves it to the end of DOM (z-index front)."""
+    from sticker0.widgets.sticker_widget import StickerWidget
+    s1 = Sticker(content="first")
+    s1.position.x = 0
+    s1.position.y = 0
+    s2 = Sticker(content="second")
+    s2.position.x = 50
+    s2.position.y = 0
+    tmp_storage.save(s1)
+    tmp_storage.save(s2)
+    app = Sticker0App(storage=tmp_storage)
+    async with app.run_test(size=(120, 40)) as pilot:
+        widgets = list(app.query(StickerWidget))
+        assert len(widgets) == 2
+        first_widget = widgets[0]
+        first_id = first_widget.sticker.id
+        await pilot.mouse_down(first_widget, offset=(2, 0))
+        await pilot.mouse_up(first_widget, offset=(2, 0))
+        await pilot.pause(0.1)
+        board = app.query_one("StickerBoard")
+        last_widget = list(board.query(StickerWidget))[-1]
+        assert last_widget.sticker.id == first_id
 
 
 @pytest.mark.asyncio
